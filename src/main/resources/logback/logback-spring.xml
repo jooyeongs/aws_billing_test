@@ -44,16 +44,16 @@
     </appender>
      
     <!-- AM 수집 로그 파일 저장 -->
-    <logger name="com.cloud" additivity="FALSE">
+    <logger name="io.tunecloud.portal" additivity="FALSE">
         <level value="DEBUG" />
         <appender-ref ref="FILE" />
         <springProfile name="local">
             <appender-ref ref="STDOUT" />
         </springProfile>
     </logger>
-    <!-- 
+    
     <logger name="org.hibernate.SQL" level="DEBUG" />
-     -->
+    
     <!-- 
     <logger name="org.hibernate.tool.hbm2ddl" level="DEBUG"/>
     <logger name="org.hibernate.type" level="TRACE" />
