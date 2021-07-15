@@ -53,8 +53,8 @@ public class RecalcController {
 		 * Test Data
 		 */
 		EncryptUtil encryptUtil = new EncryptUtil(aesKey); 
-		String secretKey = encryptUtil.encryptAES("Jq9SIPX3R0+f1MnzS7lGQ/o8cXyBkjqTzL0S6b3h");
-		String accessKey = encryptUtil.encryptAES("AKIAVXG4IB3B57753VJC");
+		String secretKey = 
+		String accessKey = 
 		LOGGER.debug("Test Data set complate");
 		// Test Data end
 		
