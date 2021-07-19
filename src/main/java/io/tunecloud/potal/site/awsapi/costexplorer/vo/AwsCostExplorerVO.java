@@ -4,7 +4,6 @@
 package io.tunecloud.potal.site.awsapi.costexplorer.vo;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import lombok.Data;
 
@@ -25,16 +24,40 @@ import lombok.Data;
  *         JuYoung2  : 2021. 6. 24       :                : 신규 개발.
  * 
  */
-// @Data
+@Data
 public class AwsCostExplorerVO {
 	/**
-	 * TimePeriod : 시작일
+	 * 추산 여부
+	 */
+	private Boolean isEstimated;
+	/**
+	 * start Date : 측정 시작 일 
 	 */
 	private String startDate;
 	/**
-	 * TimePeriod : 종료일
+	 * end Date : 측정 종료 일 
 	 */
 	private String endDate;
+	/**
+	 * 사용량 유형 
+	 */
+	private String usageType;
+	/**
+	 * unblended Cost Amount
+	 */
+	private String unblendedCostAmount;
+	/**
+	 * unblended Cost Unit
+	 */
+	private String unblendedCostUnit;
+	/**
+	 * Usage Quantity Amount
+	 */
+	private String usageQuantityAmount;
+	/**
+	 * Usage Quantity Unit
+	 */
+	private String usageQuantityUnit;
 	/**
 	 * Granularity(기간 타입) : MONTHLY
 	 */

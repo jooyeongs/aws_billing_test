@@ -39,8 +39,8 @@ public class AwsCredentialServiceImpl implements AwsCredentialService {
 	public AWSStaticCredentialsProvider getCredentialsProvider(String secretKey, String accessKey) throws Exception {
 		// 암호화된 AWS계정을 복호화
 		EncryptUtil encryptUtil = new EncryptUtil(aesKey);
-		secretKey = encryptUtil.encryptAES(secretKey);
-		accessKey = encryptUtil.encryptAES(accessKey);
+		secretKey = encryptUtil.decryptAES(secretKey);
+		accessKey = encryptUtil.decryptAES(accessKey);
 		
 		// AWS 자격 증명 (AWS 액세스 키 ID 및 보안 액세스 키)에 대한 액세스를 제공
 		AWSCredentials credentials = new BasicAWSCredentials(secretKey,accessKey);

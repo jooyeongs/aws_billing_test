@@ -3,6 +3,10 @@
  */
 package io.tunecloud.potal.site.recalc.vo;
 
+import java.util.List;
+
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+
 import lombok.Data;
 
 /**
@@ -23,7 +27,7 @@ import lombok.Data;
  * 
  */
 @Data
-public class recalcFilterVO {
+public class FilterVO {
 	/**
 	 * 시작일
 	 */
@@ -43,7 +47,11 @@ public class recalcFilterVO {
 	/**
 	 * 서비스
 	 */
-	private String service;
+	private List<String> service;
+	/**
+	 * 서비스
+	 */
+	private List<String> serviceValue;
 	/**
 	 * 계정
 	 */
@@ -112,6 +120,9 @@ public class recalcFilterVO {
 	 * 청구 엔티티
 	 */
 	private String billingEntity;
-	
+	/**
+	 * AWSStaticCredentialsProvider
+	 */
+	private AWSStaticCredentialsProvider awsCredentialsProvider; 
 }
 

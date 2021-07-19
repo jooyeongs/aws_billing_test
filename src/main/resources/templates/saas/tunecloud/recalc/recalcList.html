@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" th:inline="javascript">
+	
+function searchRecalc() {
+	alert(1);
+	document.recalcForm.submit();
+}
+</script>	
+</head>
+<body>
+<form id="recalcForm"  name="recalcForm" method="post" action="/recalcList">
+<table class="table table-bordered table-td-valign-middle">
+	<colgroup>
+		<col style="width:260px">
+		<col style="width:120px">
+	</colgroup>
+	<tbody>
+		<tr>
+			<td>Search</td>
+			<td>
+				<div>
+					<div id="datepicker-default">
+						<input id="startDate" name="startDate" type="text">
+						<input id="endDate" name="endDate" type="text">
+					</div>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td>Service Name</td>
+			<td colspan="5">
+				<select name="service" id="service">
+				    <option value="AmazonS3">Amazon Simple Storage Service</option>
+				    <option value="AWSCertificateManager">AWS Certificate Manager</option>
+				    <option value="AmazonGlacier">Amazon Glacier</option>
+				    <option value="AmazonRoute53">Amazon Route 53</option>
+				    <option value="AmazonAPIGateway">Amazon API Gateway</option>
+				    <option value="AmazonCloudFront">Amazon CloudFront</option>
+				    <option value="AmazonSES">Amazon Simple Email Service</option>
+				    <option value="AWSQueueService">Amazon Simple Queue Service</option>
+				    <option value="AmazonCloudWatch">AmazonCloudWatch</option>
+				    <option value="AmazonEC2">Amazon Elastic Compute Cloud</option>
+				    <option value="AWSOtherEBS">AWSOtherEBS</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Service Name</td>
+			<td colspan="5">
+				<select name="serviceValue" id="serviceValue">
+				    <option value="Amazon Simple Storage Service">Amazon Simple Storage Service</option>
+				    <option value="AWS Certificate Manager">AWS Certificate Manager</option>
+				    <option value="Amazon Glacier">Amazon Glacier</option>
+				    <option value="Amazon Route 53">Amazon Route 53</option>
+				    <option value="Amazon API Gateway">Amazon API Gateway</option>
+				    <option value="Amazon CloudFront">Amazon CloudFront</option>
+				    <option value="Amazon Simple Email Service">Amazon Simple Email Service</option>
+				    <option value="Amazon Simple Queue Service">Amazon Simple Queue Service</option>
+				    <option value="AmazonCloudWatch">AmazonCloudWatch</option>
+				    <option value="Amazon Elastic Compute Cloud">Amazon Elastic Compute Cloud</option>
+				    <option value="AWSOtherEBS">AWSOtherEBS</option>
+				</select>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<button type="button" onclick="searchRecalc()" >submit btn</button>
+</form>
+<th:block th:each="result : ${resultList}">
+	<th:block th:text="${result}" />
+</th:block>
+</body>
+</html>
