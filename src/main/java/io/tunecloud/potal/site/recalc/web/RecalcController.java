@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 
-import io.tunecloud.portal.util.EncryptUtil;
 import io.tunecloud.potal.site.awsapi.credentials.svc.AwsCredentialService;
+import io.tunecloud.potal.site.util.EncryptUtil;
 
 /**
  * <pre>
@@ -53,8 +53,8 @@ public class RecalcController {
 		 * Test Data
 		 */
 		EncryptUtil encryptUtil = new EncryptUtil(aesKey); 
-		String secretKey = 
-		String accessKey = 
+		String accessKey = "AKIAVXG4IB3B57753VJC";
+		String secretKey = "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";
 		LOGGER.debug("Test Data set complate");
 		// Test Data end
 		

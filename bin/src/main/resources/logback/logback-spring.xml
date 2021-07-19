@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true" scan="true">
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    
+    <springProfile name="local">     
+    <property name="LOG_DIR" value="D:/Users/logs" />
+    </springProfile>
+    <springProfile name="dev">
+    <property name="LOG_DIR" value="/home/ec2-user/logs" />
+    </springProfile>
+    <springProfile name="prd">
+    <property name="LOG_DIR" value="/home/ec2-user/logs" />
+    </springProfile>
+    
+    
+    <property name="SERVER_NAME" value="tunecloudServer"/>
+    <property name="LOG_PATH_NAME" value="${LOG_DIR}/${SERVER_NAME}" />
+    <property name="FILE_NAME" value="tunecloud" /> 
+ 
+ 
+ 
+    <!-- FILE Appender -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH_NAME}/${FILE_NAME}.log</file>
+        <!-- 일자별 로그파일 저장 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH_NAME}/${FILE_NAME}_%d{yyyyMMdd}.log</fileNamePattern>
+            <!-- 일자별 로그파일 저장 기간 설정 -->
+            <maxHistory>30</maxHistory> 
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5p] [%F]%M\(%L\) : %m%n</pattern>
+        </encoder>
+    </appender>
+     
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+           	<!-- [2018-08-17] [15:24:21.355] [log level] [logName]      [class.java        line]   [message] -->
+           	<!--    날짜           시간          로그레벨      로거이름           로그인클래스.java 몇번째줄    로그메세지 -->
+           	<pattern>[%d{yyyy-MM-dd}] [%d{HH:mm:ss.SSS}] [%p] [%c{1}] [%F:%L [%m]%n</pattern>
+           
+        </layout>
+    </appender>
+     
+    <!-- AM 수집 로그 파일 저장 -->
+    <logger name="io.tunecloud.portal" additivity="FALSE">
+        <level value="DEBUG" />
+        <appender-ref ref="FILE" />
+        <springProfile name="local">
+            <appender-ref ref="STDOUT" />
+        </springProfile>
+    </logger>
+    
+    <logger name="org.hibernate.SQL" level="DEBUG" />
+    
+    <!-- 
+    <logger name="org.hibernate.tool.hbm2ddl" level="DEBUG"/>
+    <logger name="org.hibernate.type" level="TRACE" />
+    <logger name="org.hibernate.stat" level="DEBUG" />
+    <logger name="org.hibernate.type.BasicTypeRegistry" level="WARN" />
+    -->
+    
+    <!-- 모든 로그 출력 (파일/콘솔) -->
+
+    
+    <springProfile name="local">
+        <!-- hikari pool debug logging 제외 -->
+        <logger name="com.zaxxer.hikari.pool"    level="INFO" />
+        <!-- http pool manager debug logging 제외 -->
+        <logger name="org.apache.http.impl.conn" level="INFO" />
+        
+        <!-- jdbc --> 
+        <logger name="jdbc"                level="OFF"  /> 
+        <logger name="jdbc.connection"     level="OFF"  /> 
+        <logger name="jdbc.sqlonly"        level="OFF"  /> 
+        <logger name="jdbc.sqltiming"      level="DEBUG"/> 
+        <logger name="jdbc.audit"          level="OFF"  /> 
+        <logger name="jdbc.resultset"      level="OFF"  /> 
+        <logger name="jdbc.resultsettable" level="INFO" />
+        
+        <root level="DEBUG">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+    <springProfile name="dev">
+        <!-- jdbc --> 
+        <logger name="jdbc"                level="OFF"  /> 
+        <logger name="jdbc.connection"     level="OFF"  /> 
+        <logger name="jdbc.sqlonly"        level="OFF"  /> 
+        <logger name="jdbc.sqltiming"      level="DEBUG"/> 
+        <logger name="jdbc.audit"          level="OFF"  /> 
+        <logger name="jdbc.resultset"      level="OFF"  /> 
+        <logger name="jdbc.resultsettable" level="INFO" />
+        
+        <root level="INFO">
+            <appender-ref ref="FILE"/>
+            <!-- <appender-ref ref="STDOUT"/> -->
+        </root>
+    </springProfile>
+    <springProfile name="prd">
+        <!-- jdbc --> 
+        <logger name="jdbc"                level="OFF"  /> 
+        <logger name="jdbc.connection"     level="WARN" /> 
+        <logger name="jdbc.sqlonly"        level="WARN" /> 
+        <logger name="jdbc.sqltiming"      level="WARN" /> 
+        <logger name="jdbc.audit"          level="WARN" /> 
+        <logger name="jdbc.resultset"      level="WARN" /> 
+        <logger name="jdbc.resultsettable" level="WARN" />
+        
+        <root level="INFO">
+            <appender-ref ref="FILE"/>
+            <!-- <appender-ref ref="STDOUT"/> -->
+        </root>
+    </springProfile>
+</configuration>

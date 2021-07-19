@@ -10,8 +10,8 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 
-import io.tunecloud.portal.util.EncryptUtil;
 import io.tunecloud.potal.site.awsapi.credentials.svc.AwsCredentialService;
+import io.tunecloud.potal.site.util.EncryptUtil;
 
 /**
  * <pre>

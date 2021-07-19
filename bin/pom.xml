@@ -137,7 +137,7 @@
             <version>1.66</version>
         </dependency>
                 
-<!--         <dependency>
+        <dependency>
             <groupId>TuneCloud</groupId>
             <artifactId>TuneUtils</artifactId>
             <scope>system</scope>
@@ -145,7 +145,7 @@
             <systemPath>${pom.basedir}/src/main/webapp/WEB-INF/lib/tuneutils-0.0.1-SNAPSHOT.jar</systemPath>
             <type>jar</type>
             <optional>true</optional>
-        </dependency> -->
+        </dependency>
         
         <!-- https://mvnrepository.com/artifact/org.bgee.log4jdbc-log4j2/log4jdbc-log4j2-jdbc4.1 -->
         <dependency>
