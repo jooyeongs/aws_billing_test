@@ -3,7 +3,7 @@
  */
 package io.tunecloud.potal.site.awsapi.costexplorer.vo;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Data;
 
@@ -25,7 +25,7 @@ import lombok.Data;
  * 
  */
 @Data
-public class AwsCostExplorerVO {
+public class AwsCostExplorerVO{
 	/**
 	 * 추산 여부
 	 */
@@ -41,7 +41,7 @@ public class AwsCostExplorerVO {
 	/**
 	 * 사용량 유형 
 	 */
-	private String usageType;
+	private List<String> usageType;
 	/**
 	 * unblended Cost Amount
 	 */
@@ -58,42 +58,6 @@ public class AwsCostExplorerVO {
 	 * Usage Quantity Unit
 	 */
 	private String usageQuantityUnit;
-	/**
-	 * Granularity(기간 타입) : MONTHLY
-	 */
-	private String Granulaity;
-	/**
-	 * Filter:Dimensions Key
-	 */
-	private String dimensionKey;
-	/**
-	 * Filter:Dimensions Values
-	 */
-	private ArrayList<String> dimensionValues;
-	/**
-	 * Metrics
-	 */
-	private ArrayList<String> metrics;
-	/**
-	 * GroupBy : Type
-	 */
-	private String groupByType;
-	/**
-	 * GroupBy : Key
-	 */
-	private String groupByKey;
-	/**
-	 * groupDefinition key
-	 */
-	private String groupDefinitionKey;
-	/**
-	 * groupDefinition type
-	 */
-	private String groupDefinitionType;
-	/**
-	 * Group Definitions
-	 */
-	private String GroupDefinitions;
 	/**
 	 * Service  
 	 */

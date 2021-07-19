@@ -3,6 +3,8 @@
  */
 package io.tunecloud.potal.site.awsapi.credentials.svc.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -32,21 +34,25 @@ import io.tunecloud.potal.site.util.EncryptUtil;
  */
 @Service("awsCredentialService")
 public class AwsCredentialServiceImpl implements AwsCredentialService {
+	private final Logger LOGGER = LoggerFactory.getLogger(AwsCredentialServiceImpl.class);
+	
 	@Value("${encrypt.aeskey}")
     private String aesKey;
 
 	@Override
-	public AWSStaticCredentialsProvider getCredentialsProvider(String secretKey, String accessKey) throws Exception {
+	public AWSStaticCredentialsProvider getCredentialsProvider(String accessKey, String secretKey) throws Exception {
+		LOGGER.debug("getCredentialsProvider start");
 		// 암호화된 AWS계정을 복호화
 		EncryptUtil encryptUtil = new EncryptUtil(aesKey);
-		secretKey = encryptUtil.decryptAES(secretKey);
 		accessKey = encryptUtil.decryptAES(accessKey);
-		
+		secretKey = encryptUtil.decryptAES(secretKey);
+		LOGGER.debug("decrypt complet");
 		// AWS 자격 증명 (AWS 액세스 키 ID 및 보안 액세스 키)에 대한 액세스를 제공
-		AWSCredentials credentials = new BasicAWSCredentials(secretKey,accessKey);
-		
+		AWSCredentials credentials = new BasicAWSCredentials(accessKey,secretKey);
+		LOGGER.debug("credentials");
 		// 호출자가 AWS 요청을 승인하는 데 사용할 수있는 AWSCredentials를 반환
 		AWSStaticCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
+		LOGGER.debug("credentialsProvider");
 		return credentialsProvider;
 	}
 }

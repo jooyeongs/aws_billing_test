@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.util.StringUtils;
 
 import io.tunecloud.potal.site.awsapi.credentials.svc.AwsCredentialService;
 import io.tunecloud.potal.site.recalc.svc.RecalcService;
@@ -61,12 +62,45 @@ public class RecalcController {
 	public String recalcList(@ModelAttribute("filter") FilterVO filterVO, Model model, HttpServletRequest request) throws Exception {
 		LOGGER.debug("recalcList start");
 		/**
+		 * result Map
+		 */
+		Map<String, Object> result = new HashMap<String, Object>();
+		/**
 		 * TEST group, granularity
 		 */
 		filterVO.setGroupBy("USAGE_TYPE");
 		filterVO.setGranulaity("MONTHLY");
 		/**
-		 * TEST Credentials Provider
+		 * validation check
+		 */
+		LOGGER.debug("validation");
+		if (StringUtils.isNullOrEmpty(filterVO.getStartDate())) {
+			LOGGER.error("StartDate is null");
+			
+			model.addAttribute("result", result);
+			return "tunecloud/recalc/recalcList";
+			
+		} else if (StringUtils.isNullOrEmpty(filterVO.getEndDate())) {
+			LOGGER.error("EndDate is null");
+			
+			model.addAttribute("result", result);
+			return "tunecloud/recalc/recalcList";
+			
+		} else if (filterVO.getService() == null || filterVO.getService().size() < 1) {
+			LOGGER.error("Service is null");
+			
+			model.addAttribute("result", result);
+			return "tunecloud/recalc/recalcList";
+			
+		} else if (filterVO.getServiceValue() == null || filterVO.getServiceValue().size() < 1) {
+			LOGGER.error("Service Value is null");
+			
+			model.addAttribute("result", result);
+			return "tunecloud/recalc/recalcList";
+			
+		}
+		/**
+		 * Credentials Provider
 		 */
 		LOGGER.debug("get awsCredential");
 		EncryptUtil encryptUtil = new EncryptUtil(aesKey); 
@@ -74,24 +108,20 @@ public class RecalcController {
 		String accessKey = "AKIAVXG4IB3B57753VJC";
 		String secretKey = "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";
 		
-		secretKey = encryptUtil.encryptAES(secretKey);
 		accessKey = encryptUtil.encryptAES(accessKey);
+		secretKey = encryptUtil.encryptAES(secretKey);
 		
-		AWSStaticCredentialsProvider credentialsProvider = credentialService.getCredentialsProvider(secretKey, accessKey);
+		AWSStaticCredentialsProvider credentialsProvider = credentialService.getCredentialsProvider(accessKey, secretKey);
 		
 		filterVO.setAwsCredentialsProvider(credentialsProvider);
 		LOGGER.debug("Test Data set complate");
-		
-		/**
-		 * result Map
-		 */
-		Map<String, Object> result = new HashMap<String, Object>();
+
 		List<String> 	resultList = new ArrayList<String>();
 		if (filterVO.getStartDate() != null && filterVO.getStartDate() != "") {
 			// ver1. PriceList를 DB에 적재한다.
 //			result = recalcService.savePriceList(filterVO);
 			// ver2. 조회된 PriceList와 Cost Explorer를 이용하여 재산정을 진행한다.
-//			result = recalcService.priceListRealignment(filterVO);	
+			result = recalcService.priceListRealignment(filterVO);	
 			
 			resultList.add("1");
 			resultList.add("2");
@@ -125,10 +155,10 @@ public class RecalcController {
 		String accessKey = "AKIAVXG4IB3B57753VJC";
 		String secretKey = "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";
 		
-		secretKey = encryptUtil.encryptAES(secretKey);
 		accessKey = encryptUtil.encryptAES(accessKey);
+		secretKey = encryptUtil.encryptAES(secretKey);
 		
-		AWSStaticCredentialsProvider credentialsProvider = credentialService.getCredentialsProvider(secretKey, accessKey);
+		AWSStaticCredentialsProvider credentialsProvider = credentialService.getCredentialsProvider(accessKey, secretKey);
 		
 		filterVO.setAwsCredentialsProvider(credentialsProvider);
 		/**

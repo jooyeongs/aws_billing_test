@@ -73,17 +73,25 @@ public class RecalcServiceImpl implements RecalcService {
 		/**
 		 * CostExplorer 리스트 추출
 		 */
-		/** 
-		 * PriceList 리스트 추출
-		 */
-		/**
-		 * DB에 적재
-		 */
-		/**
-		 * 결과값 map에 put
-		 */
+		LOGGER.debug("costExplorerList 리스트 추출 ");
+		List<AwsCostExplorerVO> costExplorerList = costExplorerService.callCostExplorerServiceList(filterVO);
 		
-		return result;
+		// costExplorerList가 1건 이상시
+		if (costExplorerList != null && costExplorerList.size() > 0) {
+			/** 
+			 * PriceList 리스트 추출
+			 */
+			/**
+			 * DB에 적재
+			 */
+			/**
+			 * 결과값 map에 put
+			 */
+			return result;
+		} else {
+			// error msg
+			return result;
+		}
 	}
 
 	/**
@@ -96,10 +104,13 @@ public class RecalcServiceImpl implements RecalcService {
 		/**
 		 * CostExplorer 리스트 추출 ver1.CostExplorer API 접근 
 		 */
+		LOGGER.debug("costExplorerList 리스트 추출 ");
 		List<AwsCostExplorerVO> costExplorerList = costExplorerService.callCostExplorerServiceList(filterVO);
 		/**
 		 * CostExplorer 리스트 추출 ver2.DB 접근
 		 */
+		
+		// costExplorerList가 1건 이상시
 		if (costExplorerList != null && costExplorerList.size() > 0) {
 			/** 
 			 * PriceList 리스트 추출
@@ -112,7 +123,7 @@ public class RecalcServiceImpl implements RecalcService {
 			 */
 			return result;
 		} else {
-			
+			// error msg
 			return result;
 		}
 	}
