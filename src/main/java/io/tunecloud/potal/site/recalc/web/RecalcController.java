@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.util.StringUtils;
 
 import io.tunecloud.potal.site.awsapi.credentials.svc.AwsCredentialService;
 import io.tunecloud.potal.site.recalc.svc.RecalcService;
@@ -74,13 +74,13 @@ public class RecalcController {
 		 * validation check
 		 */
 		LOGGER.debug("validation");
-		if (StringUtils.isNullOrEmpty(filterVO.getStartDate())) {
+		if (StringUtils.isBlank(filterVO.getStartDate())) {
 			LOGGER.error("StartDate is null");
 			
 			model.addAttribute("result", result);
 			return "tunecloud/recalc/recalcList";
 			
-		} else if (StringUtils.isNullOrEmpty(filterVO.getEndDate())) {
+		} else if (StringUtils.isBlank(filterVO.getEndDate())) {
 			LOGGER.error("EndDate is null");
 			
 			model.addAttribute("result", result);
@@ -98,7 +98,15 @@ public class RecalcController {
 			model.addAttribute("result", result);
 			return "tunecloud/recalc/recalcList";
 			
+		} else {
+			/**
+			 * service group
+			 */
+			Map<String,String> serviceGroup = serviceGroup(filterVO);
+			filterVO.setServiceGroup(serviceGroup);
 		}
+
+		
 		/**
 		 * Credentials Provider
 		 */
@@ -117,7 +125,7 @@ public class RecalcController {
 		LOGGER.debug("Test Data set complate");
 
 		List<String> 	resultList = new ArrayList<String>();
-		if (filterVO.getStartDate() != null && filterVO.getStartDate() != "") {
+		if (StringUtils.isNotBlank(filterVO.getStartDate())) {
 			// ver1. PriceList를 DB에 적재한다.
 //			result = recalcService.savePriceList(filterVO);
 			// ver2. 조회된 PriceList와 Cost Explorer를 이용하여 재산정을 진행한다.
@@ -143,6 +151,34 @@ public class RecalcController {
 		return "tunecloud/recalc/recalcList";
 	}
 	
+	/**
+	 * @Method Name  : serviceGroup
+	 * @Method Desc  :
+	 * @작성일   : 2021. 7. 20 
+	 * @작성자   : JuYoung2
+	 * @변경이력  :
+	 *           이름              :      일자                :         근거자료       :          변경내용
+	 *           -------------------------------------------------------------------
+	 *          JuYoung2    :   2021. 7. 20    :                   :    신규 개발.
+	 * 
+	 * @param filterVO
+	 */
+	private Map<String,String> serviceGroup(FilterVO filterVO) {
+		Map<String,String> m = new HashMap<String,String>();
+		if (filterVO.getServiceValue() != null && filterVO.getServiceValue().size() > 0) {
+			List<String> serviceValue = filterVO.getServiceValue(); 
+			if (filterVO.getService() != null && filterVO.getService().size() > 0) {
+				List<String> service = filterVO.getService();
+				if (serviceValue.size() == service.size()) {
+					for (int i=0;i<=(serviceValue.size()-1);i++) {
+						m.put(serviceValue.get(i), service.get(i));
+					}
+				}
+			}
+		}
+		return m;
+	}
+
 	@RequestMapping("/recalc") 
 	public String recalc(FilterVO filterVO, Model model, HttpServletRequest request) throws Exception {
 		LOGGER.debug("recalc start");
@@ -210,7 +246,7 @@ public class RecalcController {
 		 */
 		Map<String, Object> result = new HashMap<String, Object>();
 		// ver1. PriceList를 DB에 적재한다.
-		result = recalcService.savePriceList(filterVO);
+//		result = recalcService.savePriceList(filterVO);
 		// ver2. 조회된 PriceList와 Cost Explorer를 이용하여 재산정을 진행한다.
 		result = recalcService.priceListRealignment(filterVO);		
 		

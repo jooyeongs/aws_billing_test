@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import io.tunecloud.potal.site.awsapi.costexplorer.svc.AwsCostExplorerService;
 import io.tunecloud.potal.site.awsapi.costexplorer.vo.AwsCostExplorerVO;
 import io.tunecloud.potal.site.awsapi.priceList.svc.AwsPriceListService;
+import io.tunecloud.potal.site.awsapi.priceList.vo.AwsPriceListVO;
 import io.tunecloud.potal.site.recalc.svc.RecalcService;
 import io.tunecloud.potal.site.recalc.vo.FilterVO;
 
@@ -74,7 +75,7 @@ public class RecalcServiceImpl implements RecalcService {
 		 * CostExplorer 리스트 추출
 		 */
 		LOGGER.debug("costExplorerList 리스트 추출 ");
-		List<AwsCostExplorerVO> costExplorerList = costExplorerService.callCostExplorerServiceList(filterVO);
+		List<AwsCostExplorerVO> costExplorerList = costExplorerService.callCostExplorerList(filterVO);
 		
 		// costExplorerList가 1건 이상시
 		if (costExplorerList != null && costExplorerList.size() > 0) {
@@ -99,22 +100,19 @@ public class RecalcServiceImpl implements RecalcService {
 	 */
 	@Override
 	public Map<String, Object> priceListRealignment(FilterVO filterVO) throws Exception {
-		Map<String, Object> result = new HashMap<String, Object>();
-		
+		Map<String, Object> result = new HashMap<String, Object>();		
 		/**
 		 * CostExplorer 리스트 추출 ver1.CostExplorer API 접근 
 		 */
 		LOGGER.debug("costExplorerList 리스트 추출 ");
-		List<AwsCostExplorerVO> costExplorerList = costExplorerService.callCostExplorerServiceList(filterVO);
-		/**
-		 * CostExplorer 리스트 추출 ver2.DB 접근
-		 */
-		
+		List<AwsCostExplorerVO> costExplorerList = costExplorerService.callCostExplorerList(filterVO);
 		// costExplorerList가 1건 이상시
 		if (costExplorerList != null && costExplorerList.size() > 0) {
 			/** 
 			 * PriceList 리스트 추출
 			 */
+			LOGGER.debug("recalc {}","price List start");
+			AwsPriceListVO priceList = priceListService.callPriceListList(filterVO,costExplorerList);
 			/**
 			 * 재산정
 			 */
@@ -126,5 +124,6 @@ public class RecalcServiceImpl implements RecalcService {
 			// error msg
 			return result;
 		}
+		// CostExplorer 리스트 추출 ver2.DB 접근 >> 예정		
 	}
 }

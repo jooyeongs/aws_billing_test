@@ -4,6 +4,7 @@
 package io.tunecloud.potal.site.recalc.vo;
 
 import java.util.List;
+import java.util.Map;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 
@@ -124,5 +125,9 @@ public class FilterVO {
 	 * AWSStaticCredentialsProvider
 	 */
 	private AWSStaticCredentialsProvider awsCredentialsProvider; 
+	/**
+	 * 같은 서비스끼리 map으로 같이 다니게 만들기위한 변수
+	 */
+	private Map<String,String> serviceGroup;
 }
 

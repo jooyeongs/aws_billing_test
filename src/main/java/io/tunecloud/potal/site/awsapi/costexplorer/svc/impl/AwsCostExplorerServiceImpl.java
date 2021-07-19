@@ -57,7 +57,7 @@ public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
 	AwsCredentialService awsCredentialService;
 	
 	@Override
-	public List<AwsCostExplorerVO> callCostExplorerServiceList(FilterVO filterVO) throws Exception {
+	public List<AwsCostExplorerVO> callCostExplorerList(FilterVO filterVO) throws Exception {
 		LOGGER.debug("callCostExplorerServiceList");
 		List<AwsCostExplorerVO> awsCostExplorerList = new ArrayList<AwsCostExplorerVO> ();
 		/**
@@ -271,7 +271,7 @@ public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
 
 		AWSCostExplorer costExplorer = null;
 		try {
-			LOGGER.debug("set AWSCostExplorer");
+			LOGGER.debug("AWSCostExplorer builder");
 			costExplorer = AWSCostExplorerClientBuilder.standard	   (								  )
 													   .withRegion	   (Regions.US_EAST_1				  )
 													   .withCredentials(filter.getAwsCredentialsProvider())
