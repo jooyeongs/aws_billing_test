@@ -109,6 +109,7 @@ public class RecalcController {
 		
 		/**
 		 * Credentials Provider
+		 * : DB에서가져올 부분
 		 */
 		LOGGER.debug("get awsCredential");
 		EncryptUtil encryptUtil = new EncryptUtil(aesKey); 

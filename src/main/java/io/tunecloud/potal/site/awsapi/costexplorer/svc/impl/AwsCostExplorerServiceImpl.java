@@ -57,7 +57,7 @@ public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
 	AwsCredentialService awsCredentialService;
 	
 	@Override
-	public AwsCostExplorerVO callCostExplorerList(FilterVO filterVO) throws Exception {
+	public List<AwsCostExplorerVO> callCostExplorerList(FilterVO filterVO) throws Exception {
 		LOGGER.debug("callCostExplorerServiceList");
 		List<ResultByTime> 		resultByTimeList 	= new ArrayList<ResultByTime>();
 		List<AwsCostExplorerVO> awsCostExplorerList = new ArrayList<AwsCostExplorerVO> ();
@@ -123,10 +123,8 @@ public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
 			}
 			
 		}
-		
-		awsCostExplorer.setResultByTimes(resultByTimeList);
-		return awsCostExplorer;
-//		return awsCostExplorerList;
+
+		return awsCostExplorerList;
 	}
 	
 	/**
@@ -169,6 +167,7 @@ public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
 				awsCostExplorerVO.setUsageQuantityUnit	(usageQuantityUnit	);
 				awsCostExplorerVO.setUnblendedCostAmount(unblendedCostAmount);
 				awsCostExplorerVO.setUnblendedCostUnit	(unblendedCostUnit	);
+				awsCostExplorerVO.setResultByTimes		(resultByTimeList	);
 				
 				awsCostExplorerList.add(awsCostExplorerVO);
 			}

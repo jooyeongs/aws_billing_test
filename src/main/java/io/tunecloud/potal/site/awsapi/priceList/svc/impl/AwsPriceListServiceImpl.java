@@ -60,9 +60,7 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
 	
 	@Override
 	public AwsPriceListVO callPriceListList(
-			FilterVO filterVO, AwsCostExplorerVO awsCostExplorer) throws Exception {
-//	public AwsPriceListVO callPriceListList(
-//			FilterVO filterVO, List<AwsCostExplorerVO> costExplorerList) throws Exception {
+			FilterVO filterVO, List<AwsCostExplorerVO> costExplorerList) throws Exception {
 		LOGGER.debug("callCostExplorerServiceList");
 		AwsPriceListVO awsPriceList = new AwsPriceListVO();
 		/**
@@ -92,7 +90,7 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
 		 * CostExplorerList에서 건 바이 건으로 usagetype별로 priceList를 불러오는 부분 
 		 */
 		Map<String,String> serviceGroup = filterVO.getServiceGroup();
-//		for (AwsCostExplorerVO awsCostExplorer : costExplorerList) {
+		for (AwsCostExplorerVO awsCostExplorer : costExplorerList) {
 			/**
 			 * Products Request setting
 			 * : 요청할 priceList
@@ -217,7 +215,7 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
 	                 awsPriceList.setUsagetypes		(usagetypes);	
 	                 //Common Terms
 	                 awsPriceList.setUnits			(units);       
-	                 awsPriceList.setBeginRanges		(beginRanges);
+	                 awsPriceList.setBeginRanges	(beginRanges);
 	                 awsPriceList.setEndRanges		(endRanges);	
 	                 awsPriceList.setCurrencyCodes	(currencyCodes);
 	                 awsPriceList.setCurrencyRates	(currencyRates);	                 
@@ -227,7 +225,7 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
 	                 LOGGER.error("Parsing Exception {}", e.getMessage(), e);
 	             }
 	        }
-//		}
+		}
 		return awsPriceList;
 	}
 

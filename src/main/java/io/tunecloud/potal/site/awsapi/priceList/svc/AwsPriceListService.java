@@ -43,6 +43,6 @@ public interface AwsPriceListService {
 	 * @return
 	 * @throws Exception
 	 */
-	AwsPriceListVO callPriceListList(FilterVO filterVO, AwsCostExplorerVO costExplorerList) throws Exception;
+	AwsPriceListVO callPriceListList(FilterVO filterVO, List<AwsCostExplorerVO> costExplorerList) throws Exception;
 
 }
