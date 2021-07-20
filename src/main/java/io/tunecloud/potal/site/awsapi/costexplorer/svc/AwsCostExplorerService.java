@@ -40,6 +40,6 @@ public interface AwsCostExplorerService {
 	 * @param recalcFilterVO
 	 * @return
 	 */
-	List<AwsCostExplorerVO> callCostExplorerList(FilterVO filterVO) throws Exception;
+	AwsCostExplorerVO callCostExplorerList(FilterVO filterVO) throws Exception;
 
 }

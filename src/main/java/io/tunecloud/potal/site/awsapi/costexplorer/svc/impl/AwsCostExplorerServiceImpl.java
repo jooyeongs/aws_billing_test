@@ -57,9 +57,11 @@ public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
 	AwsCredentialService awsCredentialService;
 	
 	@Override
-	public List<AwsCostExplorerVO> callCostExplorerList(FilterVO filterVO) throws Exception {
+	public AwsCostExplorerVO callCostExplorerList(FilterVO filterVO) throws Exception {
 		LOGGER.debug("callCostExplorerServiceList");
+		List<ResultByTime> 		resultByTimeList 	= new ArrayList<ResultByTime>();
 		List<AwsCostExplorerVO> awsCostExplorerList = new ArrayList<AwsCostExplorerVO> ();
+		AwsCostExplorerVO 		awsCostExplorer 	= new AwsCostExplorerVO();
 		/**
 		 * api 호출
 		 */
@@ -110,7 +112,7 @@ public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
 			 * getCostAndUsageResult
 			 */
 			LOGGER.debug("resultByTimeList");
-			List<ResultByTime> resultByTimeList = getCostAndUsageResult.getResultsByTime();						// 결과 객체에서 ResultsByTime 추출
+			resultByTimeList = getCostAndUsageResult.getResultsByTime();						// 결과 객체에서 ResultsByTime 추출
 			/**
 			 * add awsCostExplorerList
 			 */
@@ -119,9 +121,12 @@ public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
 				// resultByTimeList를 풀어서 가지고 다니기 위해 parsing
 				awsCostExplorerList = parsingResultByTimeList(serviceValue, resultByTimeList);
 			}
+			
 		}
-        
-		return awsCostExplorerList;
+		
+		awsCostExplorer.setResultByTimes(resultByTimeList);
+		return awsCostExplorer;
+//		return awsCostExplorerList;
 	}
 	
 	/**

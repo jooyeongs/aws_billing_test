@@ -5,6 +5,8 @@ package io.tunecloud.potal.site.awsapi.costexplorer.vo;
 
 import java.util.List;
 
+import com.amazonaws.services.costexplorer.model.ResultByTime;
+
 import lombok.Data;
 
 /**
@@ -26,6 +28,10 @@ import lombok.Data;
  */
 @Data
 public class AwsCostExplorerVO{
+	/**
+	 * resultByTimes
+	 */
+	List<ResultByTime> resultByTimes;
 	/**
 	 * 추산 여부
 	 */
@@ -66,4 +72,5 @@ public class AwsCostExplorerVO{
 	 * Service value 
 	 */
 	private String serviceValue;
+	public Object resultByTimeList;
 }

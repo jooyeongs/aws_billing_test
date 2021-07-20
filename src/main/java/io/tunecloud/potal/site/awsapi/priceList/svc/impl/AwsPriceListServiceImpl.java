@@ -42,13 +42,13 @@ import io.tunecloud.potal.site.recalc.vo.FilterVO;
  * 
  * @Company : 
  * @Author  : JuYoung2
- * @Date    : 2021. 7. 19 오후 5:16:03
+ * @Date    : 2021. 6. 24 오후 5:16:03
  * @Version : 1.0
  * @Desc    : 
  * @History :
  *            이름     :     일자             :    근거자료          : 변경내용
  *           ------------------------------------------------------
- *         JuYoung2  : 2021. 7. 19       :                : 신규 개발.
+ *         JuYoung2  : 2021. 6. 24       :                : 신규 개발.
  * 
  */
 @Service("awsPriceListService")
@@ -60,7 +60,9 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
 	
 	@Override
 	public AwsPriceListVO callPriceListList(
-			FilterVO filterVO, List<AwsCostExplorerVO> costExplorerList) throws Exception {
+			FilterVO filterVO, AwsCostExplorerVO awsCostExplorer) throws Exception {
+//	public AwsPriceListVO callPriceListList(
+//			FilterVO filterVO, List<AwsCostExplorerVO> costExplorerList) throws Exception {
 		LOGGER.debug("callCostExplorerServiceList");
 		AwsPriceListVO awsPriceList = new AwsPriceListVO();
 		/**
@@ -90,7 +92,7 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
 		 * CostExplorerList에서 건 바이 건으로 usagetype별로 priceList를 불러오는 부분 
 		 */
 		Map<String,String> serviceGroup = filterVO.getServiceGroup();
-		for (AwsCostExplorerVO awsCostExplorer : costExplorerList) {
+//		for (AwsCostExplorerVO awsCostExplorer : costExplorerList) {
 			/**
 			 * Products Request setting
 			 * : 요청할 priceList
@@ -225,7 +227,7 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
 	                 LOGGER.error("Parsing Exception {}", e.getMessage(), e);
 	             }
 	        }
-		}
+//		}
 		return awsPriceList;
 	}
 
