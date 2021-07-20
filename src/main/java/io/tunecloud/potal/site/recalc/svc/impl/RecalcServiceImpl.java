@@ -126,7 +126,6 @@ public class RecalcServiceImpl implements RecalcService {
 			LOGGER.debug("price List start");
 			AwsPriceListVO priceList = priceListService.callPriceListList(filterVO,costExplorerList);
 			
-			String s = "";
 			/**
 			 * 재산정
 			 */
@@ -134,8 +133,13 @@ public class RecalcServiceImpl implements RecalcService {
 			/**
 			 * 검산값 비교 출력
 			 */
-			//CalListPrintImpl.calInfoPrint(calResultVO);							// 검산값 비교 출력
-			// CalListPrintImpl.calPrint();
+		//	CalListPrintImpl.calInfoPrint(calResultVO);							// 검산값 비교 출력
+		//	CalListPrintImpl.calPrint(calResultVO);
+			
+			result.put("costExplorerList", costExplorerList);
+			result.put("priceList", priceList);
+			result.put("calResultVO", calResultVO);
+			
 			return result;
 		} else {
 			// error msg
@@ -201,10 +205,11 @@ public class RecalcServiceImpl implements RecalcService {
 		BigDecimal 	 usageTypePriceTotal  = new BigDecimal("0");	//사용유형 검산 금액
 	 	BigDecimal 	 reduceAmount		  = new BigDecimal("0");	//프리티어 절감량
 	 	
+	 	List<ResultByTime> resultByTimes = (List<ResultByTime>) costExplorerList.get(0).getResultByTimeList();
 		//계산방식:유형별로 구간별 사용량*구간단위가격 의 총합을 소수점둘째자리까지 반올림하여 청구서 금액과 비교
 	 	//위와 같은 계산식이 맞는지 판별 후 적용해야함
-	 	for(AwsCostExplorerVO costExplorer  : costExplorerList) {		//월별
-	 		for(ResultByTime resultByTime : costExplorer.getResultByTimes()) {		//월별	 		
+//	 	for(AwsCostExplorerVO costExplorer  : costExplorerList) {		//월별
+	 		for(ResultByTime resultByTime : resultByTimes) {		//월별	 		
 	 			List<String> tempUsagePriceList = new ArrayList<String>(); 	//유형요금별 비교값 담을 리스트 생성(월별로 사용유형 묶음)
 	 			Map<String,BigDecimal> getFreeTierList = getFreeTierList(pvo);
 	 			timePeriod 	= resultByTime.getTimePeriod();
@@ -312,7 +317,7 @@ public class RecalcServiceImpl implements RecalcService {
 	 			if(originTotalPrice.equals(calTotalPrice)) isConfirm = true;	
 	 			monTotalPriceList.add(resultByTime.getTimePeriod() +"    "+calTotalPrice.toString()+"   \t"+originTotalPrice.toString()+" \t" +isConfirm);
 	 		}
-	 	}
+//	 	}
 	 	
 	 	CalResultVO result = new CalResultVO();
 	 	
@@ -334,6 +339,8 @@ public class RecalcServiceImpl implements RecalcService {
 	 	result.setDescriptions			(descriptions);
 	 	result.setLocations				(locations);
 	 	
+	 	calInfoPrint(result);
+	 	calPrint();
 		return result;
 	}
 	

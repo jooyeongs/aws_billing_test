@@ -4,60 +4,88 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <script type="text/javascript" th:inline="javascript">
-	
-function searchRecalc() {
-	var selectService = document.getElementById("service");
-	document.getElementById('serviceValue').value = selectService.options[selectService.selectedIndex].text;
-	alert(1);
-	document.recalcForm.submit();
-}
-</script>	
+	function searchRecalc() {
+		var selectService = document.getElementById("service");
+		document.getElementById('serviceValue').value = selectService.options[selectService.selectedIndex].text;
+		alert(1);
+		document.recalcForm.submit();
+	}
+</script>
 </head>
 <body>
-<form id="recalcForm"  name="recalcForm" method="post" action="/recalcList">
-<input type="hidden" id="serviceValue" name="serviceValue">
-<table class="table table-bordered table-td-valign-middle">
-	<colgroup>
-		<col style="width:260px">
-		<col style="width:120px">
-	</colgroup>
+	<form id="recalcForm" name="recalcForm" method="post"
+		action="/recalcList">
+		<input type="hidden" id="serviceValue" name="serviceValue">
+		<table class="table table-bordered table-td-valign-middle">
+			<colgroup>
+				<col style="width: 260px">
+				<col style="width: 120px">
+			</colgroup>
+			<tbody>
+				<tr>
+					<td>Search</td>
+					<td>
+						<div>
+							<div id="datepicker-default">
+								<input id="startDate" name="startDate" type="text"> <input
+									id="endDate" name="endDate" type="text">
+							</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>Service Name</td>
+					<td colspan="5"><select name="service" id="service">
+							<option value="AmazonS3">Amazon Simple Storage Service</option>
+							<option value="AWSCertificateManager">AWS Certificate
+								Manager</option>
+							<option value="AmazonGlacier">Amazon Glacier</option>
+							<option value="AmazonRoute53">Amazon Route 53</option>
+							<option value="AmazonAPIGateway">Amazon API Gateway</option>
+							<option value="AmazonCloudFront">Amazon CloudFront</option>
+							<option value="AmazonSES">Amazon Simple Email Service</option>
+							<option value="AWSQueueService">Amazon Simple Queue
+								Service</option>
+							<option value="AmazonCloudWatch">AmazonCloudWatch</option>
+							<option value="AmazonEC2">Amazon Elastic Compute Cloud</option>
+							<option value="AwsDataTransfer">AwsDataTransfer</option>
+							<option value="AmazonEBS">AmazonEBS</option>
+					</select></td>
+				</tr>
+			</tbody>
+		</table>
+		<button type="button" onclick="searchRecalc()">submit btn</button>
+	</form>
+
 	<tbody>
-		<tr>
-			<td>Search</td>
-			<td>
-				<div>
-					<div id="datepicker-default">
-						<input id="startDate" name="startDate" type="text">
-						<input id="endDate" name="endDate" type="text">
-					</div>
-				</div>
-			</td>
-		</tr>
-		<tr>
-			<td>Service Name</td>
-			<td colspan="5">
-				<select name="service" id="service">
-				    <option value="AmazonS3">Amazon Simple Storage Service</option>
-				    <option value="AWSCertificateManager">AWS Certificate Manager</option>
-				    <option value="AmazonGlacier">Amazon Glacier</option>
-				    <option value="AmazonRoute53">Amazon Route 53</option>
-				    <option value="AmazonAPIGateway">Amazon API Gateway</option>
-				    <option value="AmazonCloudFront">Amazon CloudFront</option>
-				    <option value="AmazonSES">Amazon Simple Email Service</option>
-				    <option value="AWSQueueService">Amazon Simple Queue Service</option>
-				    <option value="AmazonCloudWatch">AmazonCloudWatch</option>
-				    <option value="AmazonEC2">Amazon Elastic Compute Cloud</option>
-				    <option value="AwsDataTransfer">AwsDataTransfer</option>
-				    <option value="AmazonEBS">AmazonEBS</option>
-				</select>
-			</td>
+		<tr th:each="result : ${resultList}">
+			<tr th:each="calResultVO : ${result}">
+				<!-- <th:block th:each="units : ${calResultVO}">
+						<td><th:block th:text="${units}" /></td>
+				</th:block> -->
+			</tr>
 		</tr>
 	</tbody>
-</table>
-<button type="button" onclick="searchRecalc()" >submit btn</button>
-</form>
-<th:block th:each="result : ${resultList}">
-	<th:block th:text="${result}" />
-</th:block>
+
+
+<!-- 	<th:block th:each="result : ${resultList}">
+		<th:block th:each="calResultVO : ${result}">
+			<tr>
+				<th:block th:each="units : ${calResultVO}">
+						
+					<th:block th:each="unit : ${units}">
+						<td><th:block th:text="${unit.[0]}" /></td>
+					</th:block>
+				</th:block>
+				<tbody>
+					<tr th:each="item : ${items}">
+						<td th:text="$}">no</td>
+						<td th:text={item.idx"${item.title}">title</td>
+					</tr>
+				</tbody>
+				</tr>
+			<th:block th:text="${result}" />
+		</th:block>
+	</th:block> -->
 </body>
 </html>

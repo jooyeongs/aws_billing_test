@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 
 import io.tunecloud.potal.site.awsapi.credentials.svc.AwsCredentialService;
 import io.tunecloud.potal.site.recalc.svc.RecalcService;
+import io.tunecloud.potal.site.recalc.vo.CalResultVO;
 import io.tunecloud.potal.site.recalc.vo.FilterVO;
 import io.tunecloud.potal.site.util.EncryptUtil;
 
@@ -132,12 +134,6 @@ public class RecalcController {
 			// ver2. 조회된 PriceList와 Cost Explorer를 이용하여 재산정을 진행한다.
 			result = recalcService.priceListRealignment(filterVO);	
 			
-			resultList.add("1");
-			resultList.add("2");
-			resultList.add("3");
-			resultList.add("4");
-			resultList.add("5");
-			
 		}
 		
 //		ExplorerListApiParsing.explorerPasingJson(vo, evo);	// explorerListParsing
@@ -145,9 +141,15 @@ public class RecalcController {
 //		CalListPrintImpl.calList(priceVo, evo, result);				// 검산식 수행
 //		CalListPrintImpl.calInfoPrint(result);						// 검산값 비교 출력
 //		CalListPrintImpl.calPrint();
+						
+//		if(!result.isEmpty()) Objects.isNull(result.get(""),""); 
+
+//		List<CalResultVO> calLiat =  result.get("calResultVO");
 		
-		model.addAttribute("resultList"	, resultList);
-		model.addAttribute("result"		, result);
+		
+		model.addAttribute("costExplorerList"	, 		result.get("costExplorerList")	);
+		model.addAttribute("priceList"			, 		result.get("priceList")			);
+		model.addAttribute("resultList"			, 		result.get("calResultVO")		);
 		
 		return "tunecloud/recalc/recalcList";
 	}

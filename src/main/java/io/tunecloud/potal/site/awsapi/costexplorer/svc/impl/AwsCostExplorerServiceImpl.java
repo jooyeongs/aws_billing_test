@@ -146,6 +146,7 @@ public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
 		 * ResultByTime을 풀어서 AwsCostExplorerVO에 넣기
 		 */
 		LOGGER.debug("parsingResultByTimeList");
+		
 		for (ResultByTime rbt : resultByTimeList) {
 			String startDate 	= rbt.getTimePeriod().getStart();
 			String endDate 		= rbt.getTimePeriod().getEnd();
@@ -167,8 +168,7 @@ public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
 				awsCostExplorerVO.setUsageQuantityUnit	(usageQuantityUnit	);
 				awsCostExplorerVO.setUnblendedCostAmount(unblendedCostAmount);
 				awsCostExplorerVO.setUnblendedCostUnit	(unblendedCostUnit	);
-				awsCostExplorerVO.setResultByTimes		(resultByTimeList	);
-				
+				awsCostExplorerVO.setResultByTimeList	(resultByTimeList);
 				awsCostExplorerList.add(awsCostExplorerVO);
 			}
 		}
