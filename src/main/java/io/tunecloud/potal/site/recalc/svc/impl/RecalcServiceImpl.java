@@ -130,11 +130,6 @@ public class RecalcServiceImpl implements RecalcService {
 			 * 재산정
 			 */
 			CalResultVO calResultVO = calList(priceList, costExplorerList);	// 검산식 수행
-			/**
-			 * 검산값 비교 출력
-			 */
-		//	CalListPrintImpl.calInfoPrint(calResultVO);							// 검산값 비교 출력
-		//	CalListPrintImpl.calPrint(calResultVO);
 			
 			result.put("costExplorerList", costExplorerList);
 			result.put("priceList", priceList);
@@ -322,14 +317,14 @@ public class RecalcServiceImpl implements RecalcService {
 	 	CalResultVO result = new CalResultVO();
 	 	
 	 	result.setServicecodes			(servicecodes);
-	 	result.setUsageTypes			(usageTypes);
+	 	result.setUsagetypes			(usageTypes);
 	 	result.setUsageQuantitys		(usageQuantitys);
 	 	result.setStartDates			(startDates);	 	
 	 	result.setEndDates				(endDates);
 	 	result.setIntervalAmount		(intervalAmounts);
 	 	result.setPricePerUnits			(pricePerUnits);
 	 	result.setUsageTypePrices		(usageTypePrices);
-	 	result.setUsageTypePriceTotals	(usageTypePriceTotals);
+//	 	result.setUsageTypePriceTotals	(usageTypePriceTotals);
 	 	result.setOriginUsageTypePrices	(originUsageTypePrices);
 	 	result.setIsConfirms			(isConfirms);
 	 	result.setBeginRanges			(beginRanges);
@@ -347,10 +342,10 @@ public class RecalcServiceImpl implements RecalcService {
 	public static void calInfoPrint(CalResultVO vo) {
 		int cnt = 0;
 	 		System.out.println("*************************************************************************************");	
-	 		System.out.println("[0]서비스코드 /[1]시작일 /[2]종료일 /[3]유형타입 /[4]사용량 /[5]구간사용량 /[6]단위가격 /[7]구간가격 /[8]검산누적가격 /[9]청구서가격 /[10]검산확인 /[11]최소범위 /[12]최대범위 /[13]통화 /[14]유형단위 [15]리전정보 [16]설명 ");
+	 		System.out.println("[0]서비스코드 /[1]시작일 /[2]종료일 /[3]유형타입 /[4]사용량 /[5]구간사용량 /[6]단위가격 /[7]구간가격 /[8]청구서가격 /[9]검산확인 /[10]최소범위 /[11]최대범위 /[12]통화 /[13]유형단위 [14]리전정보 [15]설명 ");
 	 		System.out.println();
 	 		for(String str : vo.getUsagetypes()) {
-	 			System.out.println(vo.getServicecodes().get(cnt)+"\t"+vo.getStartDates().get(cnt)+"\t"+vo.getEndDates().get(cnt)+"\t"+str+"\t"+vo.getUsageQuantitys().get(cnt)+"\t"+vo.getIntervalAmount().get(cnt)+"\t"+ vo.getPricePerUnits().get(cnt)+"\t"+ vo.getUsageTypePrices().get(cnt)+"\t"+vo.getUsageTypePriceTotals().get(cnt)+"\t"+vo.getOriginUsageTypePrices().get(cnt)+"\t"+vo.getIsConfirms().get(cnt)+"\t"+vo.getBeginRanges().get(cnt)+"\t"+vo.getEndRanges().get(cnt)+"\t"+vo.getCurrencyCodes().get(cnt)+"\t"+vo.getUnits().get(cnt)+"\t"+vo.getLocations().get(cnt)+"\t"+vo.getDescriptions().get(cnt));
+	 			System.out.println(vo.getServicecodes().get(cnt)+"\t"+vo.getStartDates().get(cnt)+"\t"+vo.getEndDates().get(cnt)+"\t"+str+"\t"+vo.getUsageQuantitys().get(cnt)+"\t"+vo.getIntervalAmount().get(cnt)+"\t"+ vo.getPricePerUnits().get(cnt)+"\t"+ vo.getUsageTypePrices().get(cnt)+"\t"+vo.getOriginUsageTypePrices().get(cnt)+"\t"+vo.getIsConfirms().get(cnt)+"\t"+vo.getBeginRanges().get(cnt)+"\t"+vo.getEndRanges().get(cnt)+"\t"+vo.getCurrencyCodes().get(cnt)+"\t"+vo.getUnits().get(cnt)+"\t"+vo.getLocations().get(cnt)+"\t"+vo.getDescriptions().get(cnt));
 	 			cnt++;
 	 		}
 	 		cnt++;

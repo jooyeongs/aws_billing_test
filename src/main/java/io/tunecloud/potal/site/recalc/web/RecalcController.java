@@ -3,11 +3,9 @@
  */
 package io.tunecloud.potal.site.recalc.web;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +23,6 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 
 import io.tunecloud.potal.site.awsapi.credentials.svc.AwsCredentialService;
 import io.tunecloud.potal.site.recalc.svc.RecalcService;
-import io.tunecloud.potal.site.recalc.vo.CalResultVO;
 import io.tunecloud.potal.site.recalc.vo.FilterVO;
 import io.tunecloud.potal.site.util.EncryptUtil;
 
@@ -127,25 +124,13 @@ public class RecalcController {
 		filterVO.setAwsCredentialsProvider(credentialsProvider);
 		LOGGER.debug("Test Data set complate");
 
-		List<String> 	resultList = new ArrayList<String>();
 		if (StringUtils.isNotBlank(filterVO.getStartDate())) {
 			// ver1. PriceList를 DB에 적재한다.
 //			result = recalcService.savePriceList(filterVO);
 			// ver2. 조회된 PriceList와 Cost Explorer를 이용하여 재산정을 진행한다.
 			result = recalcService.priceListRealignment(filterVO);	
 			
-		}
-		
-//		ExplorerListApiParsing.explorerPasingJson(vo, evo);	// explorerListParsing
-//		PriceListApiParsing.priceParsingJson(vo, priceVo);	// priceListJsonParsing		
-//		CalListPrintImpl.calList(priceVo, evo, result);				// 검산식 수행
-//		CalListPrintImpl.calInfoPrint(result);						// 검산값 비교 출력
-//		CalListPrintImpl.calPrint();
-						
-//		if(!result.isEmpty()) Objects.isNull(result.get(""),""); 
-
-//		List<CalResultVO> calLiat =  result.get("calResultVO");
-		
+		}	
 		
 		model.addAttribute("costExplorerList"	, 		result.get("costExplorerList")	);
 		model.addAttribute("priceList"			, 		result.get("priceList")			);
@@ -182,80 +167,4 @@ public class RecalcController {
 		return m;
 	}
 
-	@RequestMapping("/recalc") 
-	public String recalc(FilterVO filterVO, Model model, HttpServletRequest request) throws Exception {
-		LOGGER.debug("recalc start");
-		/**
-		 * TEST Credentials Provider
-		 */
-		LOGGER.debug("get awsCredential");
-		EncryptUtil encryptUtil = new EncryptUtil(aesKey); 
-		
-		String accessKey = "AKIAVXG4IB3B57753VJC";
-		String secretKey = "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";
-		
-		accessKey = encryptUtil.encryptAES(accessKey);
-		secretKey = encryptUtil.encryptAES(secretKey);
-		
-		AWSStaticCredentialsProvider credentialsProvider = credentialService.getCredentialsProvider(accessKey, secretKey);
-		
-		filterVO.setAwsCredentialsProvider(credentialsProvider);
-		/**
-		 * TEST Start Date
-		 */
-		LOGGER.debug("get start date");
-		String startDate = "2021-06-01";
-		
-		filterVO.setStartDate(startDate);
-		/**
-		 * TEST End Date
-		 */
-		LOGGER.debug("get end date");
-		String endDate = "2021-07-19";	
-		
-		filterVO.setEndDate(endDate);
-		/**
-		 * TEST Service code : 
-		 * AmazonS3 		,  AWSCertificateManager 	,  AmazonGlacier
-		 * AmazonRoute53 	,  AmazonAPIGateway 		,  AmazonCloudFront
-		 * AmazonSES 		,  AWSQueueService 			,  AmazonCloudWatch
-		 * AmazonEC2 		,  AWSOtherEBS 
-		 */
-		LOGGER.debug("get Service value");
-		List<String> service = new ArrayList<String>();
-		
-		service.add("AmazonS3"							);
-		service.add("AWSCertificateManager"				);
-		
-		filterVO.setService(service);
-		/**
-		 * TEST Service value : 
-		 * Amazon Simple Storage Service 	,  AWS Certificate Manager 		,  Amazon Glacier
-		 * Amazon Route 53 					,  Amazon API Gateway 			,  Amazon CloudFront
-		 * Amazon Simple Email Service 		,  Amazon Simple Queue Service 	,  AmazonCloudWatch
-		 * Amazon Elastic Compute Cloud 	,  AWSOtherEBS 
-		 */
-		LOGGER.debug("get Service value");
-		List<String> serviceValue = new ArrayList<String>();
-		
-		serviceValue.add("Amazon Simple Storage Service"	);
-		serviceValue.add("AWS Certificate Manager"			);
-		
-		filterVO.setServiceValue(serviceValue);
-		LOGGER.debug("Test Data set complate");
-		
-		/**
-		 * result Map
-		 */
-		Map<String, Object> result = new HashMap<String, Object>();
-		// ver1. PriceList를 DB에 적재한다.
-//		result = recalcService.savePriceList(filterVO);
-		// ver2. 조회된 PriceList와 Cost Explorer를 이용하여 재산정을 진행한다.
-		result = recalcService.priceListRealignment(filterVO);		
-		
-		model.addAttribute("result"		, result);
-		
-		return "tunecloud/recalc/recalc";
-		
-	}
 }
