@@ -3,6 +3,7 @@
  */
 package io.tunecloud.potal.site.recalc.web;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 
 import io.tunecloud.potal.site.awsapi.credentials.svc.AwsCredentialService;
 import io.tunecloud.potal.site.recalc.svc.RecalcService;
+import io.tunecloud.potal.site.recalc.vo.CalResultVO;
+import io.tunecloud.potal.site.recalc.vo.CustomVO;
 import io.tunecloud.potal.site.recalc.vo.FilterVO;
 import io.tunecloud.potal.site.util.EncryptUtil;
 
@@ -130,11 +133,31 @@ public class RecalcController {
 			// ver2. 조회된 PriceList와 Cost Explorer를 이용하여 재산정을 진행한다.
 			result = recalcService.priceListRealignment(filterVO);	
 			
-		}	
+		}
+		CalResultVO calResultVO = (CalResultVO) result.get("calResultVO");
 		
-		model.addAttribute("costExplorerList"	, 		result.get("costExplorerList")	);
-		model.addAttribute("priceList"			, 		result.get("priceList")			);
-		model.addAttribute("resultList"			, 		result.get("calResultVO")		);
+		List<CustomVO> resultList = new ArrayList<CustomVO>();
+		
+		for (int i=0; i<calResultVO.getBeginRanges().size();i++) {
+			CustomVO custom = new CustomVO();
+			custom.setServiceCode(calResultVO.getServicecodes().get(i));
+			custom.setUsagetype(calResultVO.getUsagetypes().get(i));
+			custom.setIntervalAmount(calResultVO.getIntervalAmount().get(i));
+			custom.setPricePerUnit(calResultVO.getPricePerUnits().get(i));
+			custom.setUnblendedCost(calResultVO.getOriginUsageTypePrices().get(i));
+			custom.setBeginRange(calResultVO.getBeginRanges().get(i));
+			custom.setEndRange(calResultVO.getEndRanges().get(i));
+			custom.setCurrencyCodes(calResultVO.getCurrencyCodes().get(i));
+			custom.setUnit(calResultVO.getServicecodes().get(i));
+			custom.setLocation(calResultVO.getServicecodes().get(i));
+			
+			resultList.add(custom);
+		}
+		
+		model.addAttribute("resultList"	, resultList);
+		
+//		model.addAttribute("costExplorerList"	, 		result.get("costExplorerList")	);
+//		model.addAttribute("priceList"			, 		result.get("priceList")			);
 		
 		return "tunecloud/recalc/recalcList";
 	}

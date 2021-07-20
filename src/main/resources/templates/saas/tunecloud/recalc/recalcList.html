@@ -1,91 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <script type="text/javascript" th:inline="javascript">
-	function searchRecalc() {
-		var selectService = document.getElementById("service");
-		document.getElementById('serviceValue').value = selectService.options[selectService.selectedIndex].text;
-		alert(1);
-		document.recalcForm.submit();
-	}
-</script>
+	
+function searchRecalc() {
+	var selectService = document.getElementById("service");
+	document.getElementById('serviceValue').value = selectService.options[selectService.selectedIndex].text;
+	document.recalcForm.submit();
+}
+</script>	
 </head>
 <body>
-	<form id="recalcForm" name="recalcForm" method="post"
-		action="/recalcList">
-		<input type="hidden" id="serviceValue" name="serviceValue">
-		<table class="table table-bordered table-td-valign-middle">
-			<colgroup>
-				<col style="width: 260px">
-				<col style="width: 120px">
-			</colgroup>
-			<tbody>
-				<tr>
-					<td>Search</td>
-					<td>
-						<div>
-							<div id="datepicker-default">
-								<input id="startDate" name="startDate" type="text"> <input
-									id="endDate" name="endDate" type="text">
-							</div>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>Service Name</td>
-					<td colspan="5"><select name="service" id="service">
-							<option value="AmazonS3">Amazon Simple Storage Service</option>
-							<option value="AWSCertificateManager">AWS Certificate
-								Manager</option>
-							<option value="AmazonGlacier">Amazon Glacier</option>
-							<option value="AmazonRoute53">Amazon Route 53</option>
-							<option value="AmazonAPIGateway">Amazon API Gateway</option>
-							<option value="AmazonCloudFront">Amazon CloudFront</option>
-							<option value="AmazonSES">Amazon Simple Email Service</option>
-							<option value="AWSQueueService">Amazon Simple Queue
-								Service</option>
-							<option value="AmazonCloudWatch">AmazonCloudWatch</option>
-							<option value="AmazonEC2">Amazon Elastic Compute Cloud</option>
-							<option value="AwsDataTransfer">AwsDataTransfer</option>
-							<option value="AmazonEBS">AmazonEBS</option>
-					</select></td>
-				</tr>
-			</tbody>
-		</table>
-		<button type="button" onclick="searchRecalc()">submit btn</button>
-	</form>
-
+<form id="recalcForm"  name="recalcForm" method="post" action="/recalcList">
+<input type="hidden" id="serviceValue" name="serviceValue">
+<table class="table table-bordered table-td-valign-middle">
+	<colgroup>
+		<col style="width:260px">
+		<col style="width:120px">
+	</colgroup>
 	<tbody>
-		<tr th:each="result : ${resultList}">
-			<tr th:each="calResultVO : ${result}">
-				<!-- <th:block th:each="units : ${calResultVO}">
-						<td><th:block th:text="${units}" /></td>
-				</th:block> -->
-			</tr>
+		<tr>
+			<td>Search</td>
+			<td>
+				<div>
+					<div id="datepicker-default">
+						<p>Start Date</p><input id="startDate" name="startDate" type="text" value="2021-06-01">
+						<p>End Date</p><input id="endDate" name="endDate" type="text" value="2021-06-30">
+					</div>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td>Service Name</td>
+			<td colspan="5">
+				<select name="service" id="service">
+				    <option value="AmazonS3">Amazon Simple Storage Service</option>
+				    <option value="AWSCertificateManager">AWS Certificate Manager</option>
+				    <option value="AmazonGlacier" selected="selected">Amazon Glacier</option>
+				    <option value="AmazonRoute53">Amazon Route 53</option>
+				    <option value="AmazonAPIGateway">Amazon API Gateway</option>
+				    <option value="AmazonCloudFront">Amazon CloudFront</option>
+				    <option value="AmazonSES">Amazon Simple Email Service</option>
+				    <option value="AWSQueueService">Amazon Simple Queue Service</option>
+				    <option value="AmazonCloudWatch">AmazonCloudWatch</option>
+				    <option value="AmazonEC2">Amazon Elastic Compute Cloud</option>
+				    <option value="AwsDataTransfer">AwsDataTransfer</option>
+				    <option value="AmazonEBS">AmazonEBS</option>
+				</select>
+			</td>
 		</tr>
 	</tbody>
-
-
-<!-- 	<th:block th:each="result : ${resultList}">
-		<th:block th:each="calResultVO : ${result}">
-			<tr>
-				<th:block th:each="units : ${calResultVO}">
-						
-					<th:block th:each="unit : ${units}">
-						<td><th:block th:text="${unit.[0]}" /></td>
-					</th:block>
-				</th:block>
-				<tbody>
-					<tr th:each="item : ${items}">
-						<td th:text="$}">no</td>
-						<td th:text={item.idx"${item.title}">title</td>
-					</tr>
-				</tbody>
-				</tr>
-			<th:block th:text="${result}" />
-		</th:block>
-	</th:block> -->
+</table>
+<button type="button" onclick="searchRecalc()" >SUBMIT</button>
+</form>
+<table>
+	<thead>
+		<tr>
+			<th style="min-width:200px">서비스</th>
+			<th style="min-width:350px">유형타입</th>
+			<th style="min-width:200px">구간사용량</th>
+			<th style="min-width:200px">단위가격</th>
+			<th style="min-width:200px">청구서가격</th>
+			<th style="min-width:100px">최소범위</th>
+			<th style="min-width:100px">최대범위</th>
+			<th style="min-width:100px">통화</th>
+			<th style="min-width:100px">유형단위</th>
+			<th style="min-width:200px">리전정보</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr th:each="CustomVO : ${resultList}">
+			<th th:text="${CustomVO.serviceCode}"></th>
+			<th th:text="${CustomVO.usagetype}"></th>
+			<th th:text="${CustomVO.intervalAmount}"></th>
+			<th th:text="${CustomVO.pricePerUnit}"></th>
+			<th th:text="${CustomVO.unblendedCost}"></th>
+			<th th:text="${CustomVO.beginRange}"></th>
+			<th th:text="${CustomVO.endRange}"></th>
+			<th th:text="${CustomVO.currencyCodes}"></th>
+			<th th:text="${CustomVO.unit}"></th>
+			<th th:text="${CustomVO.location}"></th>
+		</tr>
+	</tbody>
+</table>
 </body>
 </html>
