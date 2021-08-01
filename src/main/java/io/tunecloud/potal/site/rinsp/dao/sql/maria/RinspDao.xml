@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.tunecloud.potal.site.rinsp.dao.RinspDAO">
+
+	<parameterMap id="p_project" type="io.tunecloud.potal.site.rinsp.vo.FilterVO" />
+	<resultMap    id="r_project" type="io.tunecloud.potal.site.rinsp.vo.FilterVO" />
+	
+	<select id="selectProjectKey" parameterMap="p_project" resultMap="r_project">
+		SELECT PC.ACCESS_KEY	AS accessKey
+			 , PC.SECRET_KEY	AS secretKey
+		  FROM localdb_schema1.project P 
+	INNER JOIN localdb_schema1.project_csp PC ON P.PROJECT_ID = PC.PROJECT_ID
+		 WHERE P.PROJECT_ID = #{projectId}
+		   AND PC.CSP_ID    = #{cspId}
+	</select>
+	
+	
+</mapper>

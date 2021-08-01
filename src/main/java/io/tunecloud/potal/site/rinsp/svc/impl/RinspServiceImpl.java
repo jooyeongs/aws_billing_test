@@ -1,7 +1,7 @@
 /**
  * 
  */
-package io.tunecloud.potal.site.recalc.svc.impl;
+package io.tunecloud.potal.site.rinsp.svc.impl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -14,47 +14,37 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.costexplorer.AWSCostExplorer;
 import com.amazonaws.services.costexplorer.model.DateInterval;
 import com.amazonaws.services.costexplorer.model.Group;
 import com.amazonaws.services.costexplorer.model.ResultByTime;
+import com.amazonaws.services.pricing.AWSPricing;
 
 import io.tunecloud.potal.site.awsapi.costexplorer.svc.AwsCostExplorerService;
 import io.tunecloud.potal.site.awsapi.costexplorer.vo.AwsCostExplorerVO;
 import io.tunecloud.potal.site.awsapi.priceList.svc.AwsPriceListService;
 import io.tunecloud.potal.site.awsapi.priceList.svc.impl.FreeTierCalInfo;
 import io.tunecloud.potal.site.awsapi.priceList.vo.AwsPriceListVO;
-import io.tunecloud.potal.site.recalc.svc.RecalcService;
-import io.tunecloud.potal.site.recalc.vo.CalResultVO;
-import io.tunecloud.potal.site.recalc.vo.FilterVO;
+import io.tunecloud.potal.site.awsapi.util.AwsUtils;
+import io.tunecloud.potal.site.rinsp.dao.RinspDAO;
+import io.tunecloud.potal.site.rinsp.svc.RinspService;
+import io.tunecloud.potal.site.rinsp.vo.CalResultVO;
+import io.tunecloud.potal.site.rinsp.vo.FilterVO;
+import lombok.RequiredArgsConstructor;
 
 /**
  * <pre>
- * io.tunecloud.potal.site.recalc.svc.impl
- *   |_ RecalcServiceImpl.java
+ * io.tunecloud.potal.site.rinsp.svc.impl
+ *   |_ RinspServiceImpl.java
  * </pre>
  * 
  * @Company : 
  * @Author  : JuYoung2
- * @Date    : 2021. 6. 24 오후 2:02:08
- * @Version : 1.0
- * @Desc    : 
- * @History :
- *            이름     :     일자             :    근거자료          : 변경내용
- *           ------------------------------------------------------
- *         JuYoung2  : 2021. 6. 24        :                : 신규 개발.
- * 
- */
-/**
- * <pre>
- * io.tunecloud.potal.site.recalc.svc.impl
- *   |_ RecalcServiceImpl.java
- * </pre>
- * 
- * @Company : 
- * @Author  : JuYoung2
- * @Date    : 2021. 6. 24 오후 5:22:05
+ * @Date    : 2021. 6. 24 오후 4:39:09
  * @Version : 1.0
  * @Desc    : 
  * @History :
@@ -63,19 +53,86 @@ import io.tunecloud.potal.site.recalc.vo.FilterVO;
  *         JuYoung2  : 2021. 6. 24       :                : 신규 개발.
  * 
  */
-@Service("recalcService")
-public class RecalcServiceImpl implements RecalcService {
-	private final Logger LOGGER = LoggerFactory.getLogger(RecalcServiceImpl.class);
+@RequiredArgsConstructor
+@Service("rinspService")
+public class RinspServiceImpl implements RinspService{
+	
+	private final Logger LOGGER = LoggerFactory.getLogger(RinspServiceImpl.class);
+	
+	private final RinspDAO rinspDAO;
+
+	@Value("${encrypt.aeskey}")
+    private String aes256Key;
+	
+	@Value("${aws.endpoint.regionName}")
+    private String regionName;
 	
 	@Resource(name="awsCostExplorerService")
 	AwsCostExplorerService costExplorerService;
 	
 	@Resource(name="awsPriceListService")
 	AwsPriceListService priceListService;
-
+	
 	static List<String> 	  monTotalPriceList 	= new ArrayList<String>(); 	  	 //월별 총가격 검산 결과 리스트
  	static List<List<String>> monUsageTypePriceList = new ArrayList<List<String>>(); //월별 사용타입별 가격 검산 결과 리스트	
  	
+	/**
+	 * 프로젝트의 csp 접근키와 암호키를 조회한다.
+	 */
+	@Override
+	public FilterVO selectProjectKey(FilterVO filterVO) throws Exception {
+		return rinspDAO.selectProjectKey(filterVO);
+	}
+//	@Override
+//	public Map<String, Object> rinspList(FilterVO filterVO) {
+//		Map<String, Object> result = new HashMap<String, Object>();
+//		/**
+//		 * <call utils>
+//		 *	US_EAST_1("us-east-1", "US East (N. Virginia)")
+//		 *	(Regions regions, String accessKey, String secretKey, String aes256Key)
+//		 */
+//		Regions 		endPoint 	= Regions.fromName(regionName);
+//		AWSPricing      PriceList   = AwsUtils.authAwsPricing(endPoint, filterVO.getAccessKey(), filterVO.getSecretKey(), aes256Key);
+//		AWSCostExplorer CostExplorer = AwsUtils.authAwsCe(endPoint, filterVO.getAccessKey(), filterVO.getSecretKey(), aes256Key);
+//		
+//		/**
+//		 * costExplorer
+//		 */
+//		String version = "ver1";
+//		// Ver1. costExplorer
+//		if ("ver1".equals(version)) {
+//			/**
+//			 * Cost Explorer 검색
+//			 */
+//			AwsCostExplorerVO costExplorerListVO = costExplorerService.explorerPasingJson(filterVO);
+//			// Ver1 end
+//		// Ver2. PROJECT_CSP_COST Table
+//		} else {
+//			/**
+//			 * PROJECT_CSP_COST 검색
+//			 */
+//			
+//			// Ver2 end
+//		}
+//		/**
+//		 * PriceList 전체List memory에 담기
+//		 */
+//
+//		
+//		/**
+//		 * UsageType정보로 memory에 있는 PriceList FreeTier 조회
+//		 */
+//		
+//		/**
+//		 * UsageType정보로 memory에 있는 PriceList 특정
+//		 */
+//		
+//		/**
+//		 * 재산정
+//		 */
+//		
+//		return result;
+//	}
 	/**
 	 * 조회된 PriceList를 DB에 등록한다.
 	 */
@@ -106,7 +163,6 @@ public class RecalcServiceImpl implements RecalcService {
 			return result;
 		}
 	}
-
 	/**
 	 * PriceList와 CostExplorer값을 비교하여 재산정값을 도출한다.
 	 */
@@ -142,7 +198,7 @@ public class RecalcServiceImpl implements RecalcService {
 		}
 		// CostExplorer 리스트 추출 ver2.DB 접근 >> 예정		
 	}
-
+	
 	/**
 	 * @Method Name  : calList
 	 * @Method Desc  :
@@ -382,5 +438,5 @@ public class RecalcServiceImpl implements RecalcService {
 		
 		return freeTierList;
 	}
-}
 
+}

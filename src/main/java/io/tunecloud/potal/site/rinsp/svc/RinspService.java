@@ -1,16 +1,16 @@
 /**
  * 
  */
-package io.tunecloud.potal.site.recalc.svc;
+package io.tunecloud.potal.site.rinsp.svc;
 
 import java.util.Map;
 
-import io.tunecloud.potal.site.recalc.vo.FilterVO;
+import io.tunecloud.potal.site.rinsp.vo.FilterVO;
 
 /**
  * <pre>
- * io.tunecloud.potal.site.recalc.svc
- *   |_ RecalcService.java
+ * io.tunecloud.potal.site.rinsp.svc
+ *   |_ RinspService.java
  * </pre>
  * 
  * @Company : 
@@ -21,10 +21,25 @@ import io.tunecloud.potal.site.recalc.vo.FilterVO;
  * @History :
  *            이름     :     일자             :    근거자료          : 변경내용
  *           ------------------------------------------------------
- *         JuYoung2  : 2021. 6. 24       :                : 신규 개발.
+ *          JuYoung2  : 2021. 6. 24       :                : 신규 개발.
  * 
  */
-public interface RecalcService {
+public interface RinspService {
+	
+	/**
+	 * @Method Name  : selectProjectKey
+	 * @Method Desc  :
+	 * @작성일   : 2021. 7. 19 
+	 * @작성자   : JuYoung2
+	 * @변경이력  :
+	 *           이름              :      일자                :         근거자료       :          변경내용
+	 *           -------------------------------------------------------------------
+	 *          JuYoung2    :   2021. 7. 27    :                   :    신규 개발.
+	 * 
+	 * @param filterVO
+	 * @return
+	 */
+	FilterVO selectProjectKey(FilterVO filterVO) throws Exception;
 
 	/**
 	 * @Method Name  : savePriceList

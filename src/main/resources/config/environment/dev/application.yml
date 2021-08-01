@@ -1,5 +1,5 @@
 ########################################################################
---- #Dev               
+--- #DEV               
 ########################################################################
 ########################################################################
 # server Setting
@@ -18,6 +18,12 @@ spring:
     cache: false
     mode: HTML5
     prefix: classpath:/templates/saas/
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    jdbc-url: jdbc:mysql://localhost:4407/localdb_schema1?autoReconnect=true
+    url: jdbc:mysql://localhost:4407/localdb_schema1?autoReconnect=true
+    username: root
+    password: qwQW11!!
 ##################################################################
 # LOGGING LEVELS
 ##################################################################        
@@ -40,5 +46,16 @@ jasypt:
 # ENCRYPT KEY
 ##################################################################     
 encrypt:
-  aeskey: TUNECLOUD SAAS PROVISIONING SYSTEM   
- 
+  aeskey: TUNECLOUD SAAS PROVISIONING SYSTEM
+##################################################################
+# aws defult service endpoint 
+##################################################################    
+aws:
+  endpoint: 
+    regionName: us-east-1
+##################################################################
+# mybatis
+##################################################################     
+mybatis:
+  mapper-locations:
+    - classpath:io/tunecloud/**/**/**/dao/sql/**/*.xml

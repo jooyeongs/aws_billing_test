@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -29,10 +27,9 @@ import com.amazonaws.services.pricing.model.InvalidParameterException;
 import com.amazonaws.services.pricing.model.NotFoundException;
 
 import io.tunecloud.potal.site.awsapi.costexplorer.vo.AwsCostExplorerVO;
-import io.tunecloud.potal.site.awsapi.credentials.svc.AwsCredentialService;
 import io.tunecloud.potal.site.awsapi.priceList.svc.AwsPriceListService;
 import io.tunecloud.potal.site.awsapi.priceList.vo.AwsPriceListVO;
-import io.tunecloud.potal.site.recalc.vo.FilterVO;
+import io.tunecloud.potal.site.rinsp.vo.FilterVO;
 
 /**
  * <pre>
@@ -54,9 +51,6 @@ import io.tunecloud.potal.site.recalc.vo.FilterVO;
 @Service("awsPriceListService")
 public class AwsPriceListServiceImpl implements AwsPriceListService {
 	private final Logger LOGGER = LoggerFactory.getLogger(AwsPriceListServiceImpl.class);
-	
-	@Resource(name="awsCredentialService")
-	AwsCredentialService awsCredentialService;
 	
 	@Override
 	public AwsPriceListVO callPriceListList(

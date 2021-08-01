@@ -6,10 +6,9 @@ package io.tunecloud.potal.site.awsapi.costexplorer.svc.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.regions.Regions;
@@ -29,8 +28,8 @@ import com.amazonaws.services.costexplorer.model.ResultByTime;
 
 import io.tunecloud.potal.site.awsapi.costexplorer.svc.AwsCostExplorerService;
 import io.tunecloud.potal.site.awsapi.costexplorer.vo.AwsCostExplorerVO;
-import io.tunecloud.potal.site.awsapi.credentials.svc.AwsCredentialService;
-import io.tunecloud.potal.site.recalc.vo.FilterVO;
+import io.tunecloud.potal.site.awsapi.util.AwsUtils;
+import io.tunecloud.potal.site.rinsp.vo.FilterVO;
 
 /**
  * <pre>
@@ -52,76 +51,79 @@ import io.tunecloud.potal.site.recalc.vo.FilterVO;
 @Service("awsCostExplorerService")
 public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
 	private final Logger LOGGER = LoggerFactory.getLogger(AwsCostExplorerServiceImpl.class);
+
+	@Value("${encrypt.aeskey}")
+    private String aes256Key;
 	
-	@Resource(name="awsCredentialService")
-	AwsCredentialService awsCredentialService;
+	@Value("${aws.endpoint.regionName}")
+    private String regionName;
 	
 	@Override
 	public List<AwsCostExplorerVO> callCostExplorerList(FilterVO filterVO) throws Exception {
 		LOGGER.debug("callCostExplorerServiceList");
-		List<ResultByTime> 		resultByTimeList 	= new ArrayList<ResultByTime>();
+//		List<ResultByTime> 		resultByTimeList 	= new ArrayList<ResultByTime>();
 		List<AwsCostExplorerVO> awsCostExplorerList = new ArrayList<AwsCostExplorerVO> ();
-		AwsCostExplorerVO 		awsCostExplorer 	= new AwsCostExplorerVO();
+//		AwsCostExplorerVO 		awsCostExplorer 	= new AwsCostExplorerVO();
+		/**
+		 * <call utils>
+		 *	US_EAST_1("us-east-1", "US East (N. Virginia)")
+		 *	(Regions regions, String accessKey, String secretKey, String aes256Key)
+		 */
+		Regions 		endPoint 	= Regions.fromName(regionName);
 		/**
 		 * api 호출
 		 */
-		LOGGER.debug("call CostExplorer API");
-		AWSCostExplorer costExplorer = callCostExplorer(filterVO);
+		AWSCostExplorer costExplorer = AwsUtils.authAwsCe(endPoint, filterVO.getAccessKey(), filterVO.getSecretKey(), aes256Key);
 		/**
 		 * dateInterval
 		 */
 		LOGGER.debug("DateInterval");
 		DateInterval dateInterval = new DateInterval().withStart(filterVO.getStartDate())	// 시작일 설정
 													  .withEnd	(filterVO.getEndDate()	);	// 종료일 설정
+		String serviceValue = filterVO.getServiceValue();
 		/**
-		 * 서비스별로 1건씩 작업하기
+		 * filter setting
 		 */
-		for (String serviceValue : filterVO.getServiceValue()) {
-			/**
-			 * filter setting
-			 */
-			LOGGER.debug("filter setting");
-			Expression filter = createDimensionValues(costExplorer, serviceValue, dateInterval);
-			/**
-			 * List<GroupDefinition> add DIMENSION
-			 */
-			LOGGER.debug("List<GroupDefinition> add DIMENSION");
-			List<GroupDefinition> groupDefinitions = setGroupDefinitions(filterVO);
-			/**
-			 *  withMetrics
-			 */
-			List<String> metrics = new ArrayList<String>();
-			metrics.add("UnblendedCost");		//사용자 지불 비용
-			metrics.add("UsageQuantity");		//사용자 이용량
-			/**
-			 *  getCostAndUsageRequest setting
-			 *  //Explorer 정보 요청
-			 */
-			LOGGER.debug("getCostAndUsageRequest setting");
-			GetCostAndUsageRequest getCostAndUsageRequest = new GetCostAndUsageRequest().withTimePeriod	(dateInterval			 )	//기간 설정
-																						.withGranularity(filterVO.getGranulaity())	//월별
-																						.withFilter		(filter					 )	//필터 설정: 서비스
-																						.withGroupBy	(groupDefinitions		 )	//GroupBy 설정: 사용유형별
-																						.withMetrics	(metrics				 );	//표출내용: 사용자 지불 비용, 사용자 이용량
-			/**
-			 * costExplorer.getCostAndUsage
-			 */
-			LOGGER.debug("getCostAndUsageResult");
-			GetCostAndUsageResult getCostAndUsageResult = costExplorer.getCostAndUsage(getCostAndUsageRequest);	//결과 리턴 객체 담기
-			/**
-			 * getCostAndUsageResult
-			 */
-			LOGGER.debug("resultByTimeList");
-			resultByTimeList = getCostAndUsageResult.getResultsByTime();						// 결과 객체에서 ResultsByTime 추출
-			/**
-			 * add awsCostExplorerList
-			 */
-			LOGGER.debug("awsCostExplorerList");
-			if(resultByTimeList != null && resultByTimeList.size() > 0) {
-				// resultByTimeList를 풀어서 가지고 다니기 위해 parsing
-				awsCostExplorerList = parsingResultByTimeList(serviceValue, resultByTimeList);
-			}
-			
+		LOGGER.debug("filter setting");
+		Expression filter = createDimensionValues(costExplorer, serviceValue, dateInterval);
+		/**
+		 * List<GroupDefinition> add DIMENSION
+		 */
+		LOGGER.debug("List<GroupDefinition> add DIMENSION");
+		List<GroupDefinition> groupDefinitions = setGroupDefinitions(filterVO);
+		/**
+		 *  withMetrics
+		 */
+		List<String> metrics = new ArrayList<String>();
+		metrics.add("UnblendedCost");		//사용자 지불 비용
+		metrics.add("UsageQuantity");		//사용자 이용량
+		/**
+		 *  getCostAndUsageRequest setting
+		 *  //Explorer 정보 요청
+		 */
+		LOGGER.debug("getCostAndUsageRequest setting");
+		GetCostAndUsageRequest getCostAndUsageRequest = new GetCostAndUsageRequest().withTimePeriod	(dateInterval			 )	//기간 설정
+																					.withGranularity(filterVO.getGranulaity())	//월별
+																					.withFilter		(filter					 )	//필터 설정: 서비스
+																					.withGroupBy	(groupDefinitions		 )	//GroupBy 설정: 사용유형별
+																					.withMetrics	(metrics				 );	//표출내용: 사용자 지불 비용, 사용자 이용량
+		/**
+		 * costExplorer.getCostAndUsage
+		 */
+		LOGGER.debug("getCostAndUsageResult");
+		GetCostAndUsageResult getCostAndUsageResult = costExplorer.getCostAndUsage(getCostAndUsageRequest);	//결과 리턴 객체 담기
+		/**
+		 * getCostAndUsageResult
+		 */
+		LOGGER.debug("resultByTimeList");
+		resultByTimeList = getCostAndUsageResult.getResultsByTime();						// 결과 객체에서 ResultsByTime 추출
+		/**
+		 * add awsCostExplorerList
+		 */
+		LOGGER.debug("awsCostExplorerList");
+		if(resultByTimeList != null && resultByTimeList.size() > 0) {
+			// resultByTimeList를 풀어서 가지고 다니기 위해 parsing
+			awsCostExplorerList = parsingResultByTimeList(serviceValue, resultByTimeList);
 		}
 
 		return awsCostExplorerList;
@@ -284,6 +286,7 @@ public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
 			LOGGER.error("AWSCostExplorer Exception {}", e.getMessage());
 		}
 		return costExplorer;
-	} 
+	}
+
 
 }

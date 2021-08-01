@@ -183,6 +183,22 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<resources>
+		    <resource>
+		        <!-- <filtering>false</filtering> -->
+		        <directory>src/main/java</directory>
+		        <includes>
+		            <include>**/*.xml</include>
+		        </includes>
+		    </resource>
+		    <resource>
+		        <!-- <filtering>true</filtering> -->
+		        <directory>src/main/resources</directory>
+		        <!-- <excludes>
+		            <exclude>config/**</exclude>
+		        </excludes> -->
+		    </resource>
+		</resources>
 	</build>
 
 </project>

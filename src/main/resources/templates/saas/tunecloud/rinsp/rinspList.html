@@ -14,8 +14,10 @@ function searchRecalc() {
 </script>	
 </head>
 <body>
-<form id="recalcForm"  name="recalcForm" method="post" action="/recalcList">
-<input type="hidden" id="serviceValue" name="serviceValue">
+<form id="recalcForm"  name="recalcForm" method="post" action="/rinspList">
+<input type="hidden" id="serviceValue"	name="serviceValue"	>
+<input type="hidden" id="cspId"			name="cspId"		value="1">
+<input type="hidden" id="projectId"		name="projectId"	value="1">
 <table class="table table-bordered table-td-valign-middle">
 	<colgroup>
 		<col style="width:260px">
@@ -23,7 +25,20 @@ function searchRecalc() {
 	</colgroup>
 	<tbody>
 		<tr>
-			<td>Search</td>
+			<td>search</td>
+			<td>
+				<div>
+					<div id="datepicker-default">
+						<p>Group</p>
+						<input id="groupBy"		name="groupBy"		type="text" value="USAGE_TYPE"	>
+						<p>Granulaity</p>
+						<input id="granulaity" 	name="granulaity"	type="text" value="MONTHLY"		>
+					</div>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td>period</td>
 			<td>
 				<div>
 					<div id="datepicker-default">

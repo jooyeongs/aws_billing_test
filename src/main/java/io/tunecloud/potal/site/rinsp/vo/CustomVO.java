@@ -1,4 +1,4 @@
-package io.tunecloud.potal.site.recalc.vo;
+package io.tunecloud.potal.site.rinsp.vo;
 
 import lombok.Data;
 

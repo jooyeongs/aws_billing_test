@@ -1,7 +1,7 @@
 /**
  * 
  */
-package io.tunecloud.potal.site.recalc.vo;
+package io.tunecloud.potal.site.rinsp.vo;
 
 import java.util.List;
 import java.util.Map;
@@ -40,7 +40,7 @@ public class FilterVO {
 	/**
 	 * 기간 타입
 	 */
-	private String Granulaity;
+	private String granulaity;
 	/**
 	 * 그룹 기준
 	 */
@@ -48,11 +48,11 @@ public class FilterVO {
 	/**
 	 * 서비스
 	 */
-	private List<String> service;
+	private String service;
 	/**
 	 * 서비스
 	 */
-	private List<String> serviceValue;
+	private String serviceName;
 	/**
 	 * 계정
 	 */
@@ -129,5 +129,21 @@ public class FilterVO {
 	 * 같은 서비스끼리 map으로 같이 다니게 만들기위한 변수
 	 */
 	private Map<String,String> serviceGroup;
+	/**
+	 * access Key
+	 */
+	private String accessKey;
+	/**
+	 * secret Key
+	 */
+	private String secretKey;
+	/**
+	 * Project Id
+	 */
+	private int projectId;
+	/**
+	 * csp Id
+	 */
+	private int cspId;
 }
 

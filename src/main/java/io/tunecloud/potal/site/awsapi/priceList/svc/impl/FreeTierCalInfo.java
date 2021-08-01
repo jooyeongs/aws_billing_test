@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import io.tunecloud.potal.site.awsapi.priceList.vo.AwsPriceListVO;
-import io.tunecloud.potal.site.recalc.vo.AwsComDefaultVO;
 
 public class FreeTierCalInfo {
 //	<Trackable AWS Free Tier services>
