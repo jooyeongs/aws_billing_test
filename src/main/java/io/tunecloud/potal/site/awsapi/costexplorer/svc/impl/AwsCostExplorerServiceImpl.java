@@ -59,74 +59,85 @@ public class AwsCostExplorerServiceImpl implements AwsCostExplorerService {
     private String regionName;
 	
 	@Override
-	public List<AwsCostExplorerVO> callCostExplorerList(FilterVO filterVO) throws Exception {
+	public AwsCostExplorerVO callCostExplorerList(FilterVO filterVO) throws Exception {
 		LOGGER.debug("callCostExplorerServiceList");
-//		List<ResultByTime> 		resultByTimeList 	= new ArrayList<ResultByTime>();
-		List<AwsCostExplorerVO> awsCostExplorerList = new ArrayList<AwsCostExplorerVO> ();
-//		AwsCostExplorerVO 		awsCostExplorer 	= new AwsCostExplorerVO();
 		/**
 		 * <call utils>
 		 *	US_EAST_1("us-east-1", "US East (N. Virginia)")
 		 *	(Regions regions, String accessKey, String secretKey, String aes256Key)
 		 */
-		Regions 		endPoint 	= Regions.fromName(regionName);
-		/**
-		 * api 호출
-		 */
+		Regions 		endPoint 	 = Regions.fromName(regionName);
 		AWSCostExplorer costExplorer = AwsUtils.authAwsCe(endPoint, filterVO.getAccessKey(), filterVO.getSecretKey(), aes256Key);
-		/**
-		 * dateInterval
-		 */
-		LOGGER.debug("DateInterval");
-		DateInterval dateInterval = new DateInterval().withStart(filterVO.getStartDate())	// 시작일 설정
-													  .withEnd	(filterVO.getEndDate()	);	// 종료일 설정
-		String serviceValue = filterVO.getServiceValue();
-		/**
-		 * filter setting
-		 */
-		LOGGER.debug("filter setting");
-		Expression filter = createDimensionValues(costExplorer, serviceValue, dateInterval);
-		/**
-		 * List<GroupDefinition> add DIMENSION
-		 */
-		LOGGER.debug("List<GroupDefinition> add DIMENSION");
-		List<GroupDefinition> groupDefinitions = setGroupDefinitions(filterVO);
-		/**
-		 *  withMetrics
-		 */
-		List<String> metrics = new ArrayList<String>();
-		metrics.add("UnblendedCost");		//사용자 지불 비용
-		metrics.add("UsageQuantity");		//사용자 이용량
-		/**
-		 *  getCostAndUsageRequest setting
-		 *  //Explorer 정보 요청
-		 */
-		LOGGER.debug("getCostAndUsageRequest setting");
-		GetCostAndUsageRequest getCostAndUsageRequest = new GetCostAndUsageRequest().withTimePeriod	(dateInterval			 )	//기간 설정
-																					.withGranularity(filterVO.getGranulaity())	//월별
-																					.withFilter		(filter					 )	//필터 설정: 서비스
-																					.withGroupBy	(groupDefinitions		 )	//GroupBy 설정: 사용유형별
-																					.withMetrics	(metrics				 );	//표출내용: 사용자 지불 비용, 사용자 이용량
-		/**
-		 * costExplorer.getCostAndUsage
-		 */
-		LOGGER.debug("getCostAndUsageResult");
-		GetCostAndUsageResult getCostAndUsageResult = costExplorer.getCostAndUsage(getCostAndUsageRequest);	//결과 리턴 객체 담기
-		/**
-		 * getCostAndUsageResult
-		 */
-		LOGGER.debug("resultByTimeList");
-		resultByTimeList = getCostAndUsageResult.getResultsByTime();						// 결과 객체에서 ResultsByTime 추출
-		/**
-		 * add awsCostExplorerList
-		 */
-		LOGGER.debug("awsCostExplorerList");
-		if(resultByTimeList != null && resultByTimeList.size() > 0) {
-			// resultByTimeList를 풀어서 가지고 다니기 위해 parsing
-			awsCostExplorerList = parsingResultByTimeList(serviceValue, resultByTimeList);
+		
+		DateInterval 	dateInterval    = new DateInterval().withStart(filterVO.getStartDate()).withEnd(filterVO.getEndDate()); //검색기간 설정
+		DimensionValues dimensionValues = null;
+		
+		if("AwsDataTransfer".equals(filterVO.getServiceName()) || "Amazon Elastic Compute Cloud".equals(filterVO.getServiceName()) ){
+			List<String> usageTypes    = new ArrayList<String>();
+			 // 일정 기간 동안 지정된 필터에 대해 사용 가능한 모든 필터 값을 검색하기 위한 GetDimensionValuesRequest 객체를 생성한다.
+		    GetDimensionValuesRequest getDimensionValuesRequest = new GetDimensionValuesRequest().withContext("COST_AND_USAGE") // 호출 컨텍스트 기본 값은 COST_AND_USAGE, GetCostAndUsage 작업에 사용 가능
+																					             .withDimension("USAGE_TYPE")
+																					             .withTimePeriod(dateInterval);  // 기간 설정
+		    GetDimensionValuesResult getDimensionValuesResult = costExplorer.getDimensionValues(getDimensionValuesRequest); // 일정 기간 동안 지정된 필터에 대해 사용 가능한 모든 필터 값을 담을 GetDimensionValuesResult 객체를 생성한다.
+		    
+		    for(DimensionValuesWithAttributes dimensionValuesWithAttributes : getDimensionValuesResult.getDimensionValues()) {   // 요청을 필터링하는 데 사용한 필터의 목록들을 순회합니다.
+		    	String value = dimensionValuesWithAttributes.getValue();             		 // 요청을 필터링하는 데 사용한 필터의 값을 가져온다.
+		    	if(filterVO.getServiceName().equals("AwsDataTransfer")) {
+		    		if(value.contains("AWS-Out-Bytes") || value.contains("DataTransfer")) { // 필터의 값이 Out 또는 DataTransfer를 포함하는지 확인한다.
+		    			usageTypes.add(value);                                     			 // usageTypes의 리스트에 필터의 값을 넣어준다.
+		    		}
+		    	} else if(filterVO.getServiceName().equals("Amazon Elastic Compute Cloud")) {
+		    		if(value.contains("EBS")) { 											 // 필터의 값이 Out 또는 DataTransfer를 포함하는지 확인한다.
+		    			usageTypes.add(value);                                     		 // usageTypes의 리스트에 필터의 값을 넣어준다.
+		    		}
+		    	}
+		    }
+		      
+		    usageTypes.remove("AP-DataTransfer-Out-Bytes");                   // usageTypes리스트에서 필터의 값이  AP-DataTransfer-Out-Bytes인 객체를 삭제한다.
+		      
+			dimensionValues = new DimensionValues().withKey	("USAGE_TYPE")						//키값 설정
+					   							  .withValues(usageTypes);	
+		}else {
+			dimensionValues = new DimensionValues().withKey	("SERVICE")							//키값 설정
+												   .withValues(filterVO.getServiceName());		//서비스네임
 		}
+		
+		Expression filter = new Expression().withDimensions(dimensionValues);
+		
+		List<GroupDefinition> groupDefinitions = new ArrayList<GroupDefinition>();
+		GroupDefinition 		groupDefinition  = new GroupDefinition().withType("DIMENSION")					//GroupBy 필터설정
+																		.withKey("USAGE_TYPE");					//사용유형별
+		groupDefinitions.add(groupDefinition);
+		
+		List<String> metrics = new ArrayList<String>();
+	    metrics.add("UnblendedCost");	//사용자 지불 비용
+	    metrics.add("UsageQuantity");	//사용자 이용량
+	    
+	    GetCostAndUsageRequest getCostAndUsageRequest = new GetCostAndUsageRequest()							//Explorer 정보 요청
+	              .withTimePeriod	(dateInterval)		//기간 설정
+	              .withGranularity	("MONTHLY")			//월별
+	              .withFilter		(filter)			//필터 설정: 서비스
+	              .withGroupBy		(groupDefinitions)	//GroupBy 설정: 사용유형별
+	              .withMetrics		(metrics);			//표출내용: 사용자 지불 비용, 사용자 이용량
+	    GetCostAndUsageResult getCostAndUsageResult = costExplorer.getCostAndUsage(getCostAndUsageRequest);		//결과 리턴 객체 담기
+	    List<ResultByTime> resultByTimes = getCostAndUsageResult.getResultsByTime();
+	    
+	    //VO에 저장
+	    
+	    System.out.println(resultByTimes.toString());
+	    
+	    for(ResultByTime resultByTime : resultByTimes) {
+	    	 System.out.println(resultByTime.getTimePeriod());
+	    	 for(Group group : resultByTime.getGroups()) {
+	    		 System.out.println(group);
+	    	 }
+	    	 System.out.println();
+	    }
+	    AwsCostExplorerVO ceVO = new AwsCostExplorerVO();
+	    
+	    ceVO.setResultByTimes(resultByTimes);	
 
-		return awsCostExplorerList;
+		return ceVO;
 	}
 	
 	/**

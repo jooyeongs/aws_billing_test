@@ -5,30 +5,23 @@ package io.tunecloud.potal.site.awsapi.priceList.svc.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.pricing.AWSPricing;
 import com.amazonaws.services.pricing.AWSPricingClientBuilder;
-import com.amazonaws.services.pricing.model.ExpiredNextTokenException;
-import com.amazonaws.services.pricing.model.Filter;
 import com.amazonaws.services.pricing.model.GetProductsRequest;
 import com.amazonaws.services.pricing.model.GetProductsResult;
-import com.amazonaws.services.pricing.model.InternalErrorException;
-import com.amazonaws.services.pricing.model.InvalidNextTokenException;
-import com.amazonaws.services.pricing.model.InvalidParameterException;
-import com.amazonaws.services.pricing.model.NotFoundException;
 
-import io.tunecloud.potal.site.awsapi.costexplorer.vo.AwsCostExplorerVO;
 import io.tunecloud.potal.site.awsapi.priceList.svc.AwsPriceListService;
 import io.tunecloud.potal.site.awsapi.priceList.vo.AwsPriceListVO;
+import io.tunecloud.potal.site.awsapi.util.AwsUtils;
 import io.tunecloud.potal.site.rinsp.vo.FilterVO;
 
 /**
@@ -52,9 +45,14 @@ import io.tunecloud.potal.site.rinsp.vo.FilterVO;
 public class AwsPriceListServiceImpl implements AwsPriceListService {
 	private final Logger LOGGER = LoggerFactory.getLogger(AwsPriceListServiceImpl.class);
 	
+	@Value("${encrypt.aeskey}")
+    private String aes256Key;
+	
+	@Value("${aws.endpoint.regionName}")
+    private String regionName;
+	
 	@Override
-	public AwsPriceListVO callPriceListList(
-			FilterVO filterVO, List<AwsCostExplorerVO> costExplorerList) throws Exception {
+	public AwsPriceListVO callPriceListList(FilterVO filterVO) throws Exception {
 		LOGGER.debug("callCostExplorerServiceList");
 		AwsPriceListVO awsPriceList = new AwsPriceListVO();
 		/**
@@ -73,93 +71,36 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
 		List<String> descriptions	= new ArrayList<String>();	//단위 설명
 		
 		List<String> locations		= new ArrayList<String>();	//리전정보
-
-		String serviceCode = null; 
-		/**
-		 * api 호출
-		 */
-		LOGGER.debug("call CostExplorer API");
-		AWSPricing pricing = callPricing(filterVO);
-		/**
-		 * CostExplorerList에서 건 바이 건으로 usagetype별로 priceList를 불러오는 부분 
-		 */
-		Map<String,String> serviceGroup = filterVO.getServiceGroup();
-		for (AwsCostExplorerVO awsCostExplorer : costExplorerList) {
-			/**
-			 * Products Request setting
-			 * : 요청할 priceList
-			 */
-			List<Filter> 	   filters 				= new ArrayList<Filter>();
-			GetProductsRequest getProductsRequest 	= new GetProductsRequest().withFilters(filters);	// 요청할	priceList
-			GetProductsResult  getProductsResult  	= new GetProductsResult();							// 받은	priceList
-			
-			/**
-			 * ServiceValue로 Service가져오기 
-			 */
-			serviceCode = serviceGroup.get(awsCostExplorer.getServiceValue());
-			getProductsRequest.withServiceCode(serviceCode);	// 필수값 서비스 필터에 적용
-			
-			/**
-			 * Products Request에 서비스와 필터 적용
-			 */
-			List<String> usageType = awsCostExplorer.getUsageType();
-			if (usageType != null) {
-				// 필터 usagetype에 groupKey등록
-				getProductsRequest.getFilters()
-						   		  .add(new Filter().withType ("TERM_MATCH"		)
-											       .withField("usageType"		)							
-											       .withValue(usageType.get(0)	));
-			}
 		
-			/*
-			 * get Products
-			 */ 
-			try {
-				getProductsResult = pricing.getProducts(getProductsRequest);					
-			} catch (InternalErrorException e) {
-				LOGGER.error("InternalErrorException {}"	, e);
-			} catch (InvalidParameterException e) {
-				LOGGER.error("InvalidParameterException {}"	, e);
-			} catch (NotFoundException e) {
-				LOGGER.error("NotFoundException {}"			, e);
-			} catch (InvalidNextTokenException e) {
-				LOGGER.error("InvalidNextTokenException {}"	, e);
-			} catch (ExpiredNextTokenException e) {
-				LOGGER.error("ExpiredNextTokenException {}"	, e);
-			}
+		/**
+		 * <call utils>
+		 *	US_EAST_1("us-east-1", "US East (N. Virginia)")
+		 *	(Regions regions, String accessKey, String secretKey, String aes256Key)
+		 */
+		Regions 		endPoint = Regions.fromName(regionName);
+		AWSPricing      pricing  = AwsUtils.authAwsPricing(endPoint, filterVO.getAccessKey(), filterVO.getSecretKey(), aes256Key);
 			
-			/*
-			 * priceList Request setting
-			 */
-			List<String> priceList = new ArrayList<String>();
-			priceList = getProductsResult.getPriceList();
+		GetProductsRequest getProductsRequest = new GetProductsRequest();				//요청할 priceList
+		GetProductsResult  getProductsResult  = new GetProductsResult();				//받은 priceList
+		
+		boolean isNextTokenCheck = false;	//토큰 체크
+		do{		
+			//nextToken validation check
 			
-			/*
-			 * servicecode와 usagetype를 가지고 조회
-			 */
-			if (priceList.size() > 1) {
-				/*
-				 * Products pagin > addAll Json List
-				 */
-				while (StringUtils.isNotEmpty(getProductsResult.getNextToken())) {
-//					getProductsRequest = new GetProductsRequest().withFilters  (filters						  	)
-//																 .withNextToken(getProductsResult.getNextToken());
-					getProductsRequest = new GetProductsRequest().withFilters  	 (filters						  )
-																 .withServiceCode(serviceCode					  )
-																 .withNextToken	 (getProductsResult.getNextToken());
-					if (usageType != null) {
-						// 필터 usagetype에 groupKey등록
-						getProductsRequest.getFilters()
-								   		  .add(new Filter().withType ("TERM_MATCH"		)
-													       .withField("usageType"		)							
-													       .withValue(usageType.get(0)	));
-					}
-					
-					getProductsResult = pricing.getProducts(getProductsRequest);
-					priceList.addAll(getProductsResult.getPriceList());
-				}
-			}
-	        for(String price : priceList) {
+			if( isNextTokenCheck == false ) {
+				getProductsRequest = new GetProductsRequest().withServiceCode(filterVO.getService());	//요청할 서비스코드 입력
+				getProductsResult  = pricing.getProducts(getProductsRequest);						//priceList 등록
+				LOGGER.debug(getProductsResult.toString());
+				isNextTokenCheck 	   = true;
+			}else {
+				//이후 실행시 NextToken 값을 이용 다음 페이지 priceList 정보 가져옴
+				getProductsRequest = new GetProductsRequest().withServiceCode(filterVO.getService())				//요청할 서비스코드 입력
+															 .withNextToken(getProductsResult.getNextToken());  //가져올 페이지 토큰 입력
+				getProductsResult  = pricing.getProducts(getProductsRequest);		 							//priceList 등록
+			}			
+			
+			//가져온 priceList JSON-simple을 이용하여 Parsing
+	        for(String price : getProductsResult.getPriceList()) {
 	        	 try {
 	        		 JSONParser parser 				= new JSONParser();
 	                 Object obj         			= parser.parse(price);				//JSON Parsing 리턴객체를 object로 받음
@@ -202,7 +143,6 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
 	                 }
 	                 
 	                 //VO에 저장
-	                 
 	                 //Common Product
 	                 awsPriceList.setServicecodes	(servicecodes);
 	                 awsPriceList.setServicenames	(servicenames);
@@ -215,11 +155,12 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
 	                 awsPriceList.setCurrencyRates	(currencyRates);	                 
 	                 awsPriceList.setDescriptions	(descriptions);	
 	                 awsPriceList.setLocations		(locations);
-                }catch (Exception e) {
+                 }catch (Exception e) {
 	                 LOGGER.error("Parsing Exception {}", e.getMessage(), e);
 	             }
 	        }
-		}
+		}while(null != getProductsResult.getNextToken()); //NextToken 없을시 종료
+		
 		return awsPriceList;
 	}
 

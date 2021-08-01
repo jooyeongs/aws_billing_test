@@ -128,8 +128,8 @@ public class RinspController {
 					custom.setBeginRange(calResultVO.getBeginRanges().get(i));
 					custom.setEndRange(calResultVO.getEndRanges().get(i));
 					custom.setCurrencyCodes(calResultVO.getCurrencyCodes().get(i));
-					custom.setUnit(calResultVO.getServicecodes().get(i));
-					custom.setLocation(calResultVO.getServicecodes().get(i));
+					custom.setUnit(calResultVO.getUnits().get(i));
+					custom.setLocation(calResultVO.getLocations().get(i));
 					
 					resultList.add(custom);
 				}
@@ -141,7 +141,7 @@ public class RinspController {
 //			model.addAttribute("priceList"			, 		result.get("priceList")			);
 			
 		}
-		return "tunecloud/recalc/rinspList";
+		return "tunecloud/rinsp/rinspList";
 	}
 	
 	/**

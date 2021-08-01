@@ -8,14 +8,14 @@
 	
 function searchRecalc() {
 	var selectService = document.getElementById("service");
-	document.getElementById('serviceValue').value = selectService.options[selectService.selectedIndex].text;
+	document.getElementById('serviceName').value = selectService.options[selectService.selectedIndex].text;
 	document.recalcForm.submit();
 }
 </script>	
 </head>
 <body>
 <form id="recalcForm"  name="recalcForm" method="post" action="/rinspList">
-<input type="hidden" id="serviceValue"	name="serviceValue"	>
+<input type="hidden" id="serviceName"	name="serviceName"	>
 <input type="hidden" id="cspId"			name="cspId"		value="1">
 <input type="hidden" id="projectId"		name="projectId"	value="1">
 <table class="table table-bordered table-td-valign-middle">

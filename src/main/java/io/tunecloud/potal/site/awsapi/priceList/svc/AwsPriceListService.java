@@ -39,10 +39,9 @@ public interface AwsPriceListService {
 	 *          JuYoung2    :   2021. 7. 20    :                   :    신규 개발.
 	 * 
 	 * @param filterVO
-	 * @param costExplorerList
 	 * @return
 	 * @throws Exception
 	 */
-	AwsPriceListVO callPriceListList(FilterVO filterVO, List<AwsCostExplorerVO> costExplorerList) throws Exception;
+	AwsPriceListVO callPriceListList(FilterVO filterVO) throws Exception;
 
 }

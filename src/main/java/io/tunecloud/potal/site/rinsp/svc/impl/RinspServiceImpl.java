@@ -17,19 +17,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.costexplorer.AWSCostExplorer;
 import com.amazonaws.services.costexplorer.model.DateInterval;
 import com.amazonaws.services.costexplorer.model.Group;
 import com.amazonaws.services.costexplorer.model.ResultByTime;
-import com.amazonaws.services.pricing.AWSPricing;
 
 import io.tunecloud.potal.site.awsapi.costexplorer.svc.AwsCostExplorerService;
 import io.tunecloud.potal.site.awsapi.costexplorer.vo.AwsCostExplorerVO;
 import io.tunecloud.potal.site.awsapi.priceList.svc.AwsPriceListService;
 import io.tunecloud.potal.site.awsapi.priceList.svc.impl.FreeTierCalInfo;
 import io.tunecloud.potal.site.awsapi.priceList.vo.AwsPriceListVO;
-import io.tunecloud.potal.site.awsapi.util.AwsUtils;
 import io.tunecloud.potal.site.rinsp.dao.RinspDAO;
 import io.tunecloud.potal.site.rinsp.svc.RinspService;
 import io.tunecloud.potal.site.rinsp.vo.CalResultVO;
@@ -144,7 +140,8 @@ public class RinspServiceImpl implements RinspService{
 		 * CostExplorer 리스트 추출
 		 */
 		LOGGER.debug("costExplorerList 리스트 추출 ");
-		List<AwsCostExplorerVO> costExplorerList = costExplorerService.callCostExplorerList(filterVO);
+		List<AwsCostExplorerVO> costExplorerList = null; 
+				// costExplorerService.callCostExplorerList(filterVO);
 		
 		// costExplorerList가 1건 이상시
 		if (costExplorerList != null) {
@@ -172,31 +169,18 @@ public class RinspServiceImpl implements RinspService{
 		/**
 		 * CostExplorer 리스트 추출 ver1.CostExplorer API 접근 
 		 */
-		LOGGER.debug("costExplorerList 리스트 추출 ");
-		List<AwsCostExplorerVO> costExplorerList = costExplorerService.callCostExplorerList(filterVO);
-		// costExplorerList가 1건 이상시
-		if (costExplorerList != null) {
-			/** 
-			 * PriceList 리스트 추출
-			 */
-			LOGGER.debug("price List start");
-			AwsPriceListVO priceList = priceListService.callPriceListList(filterVO,costExplorerList);
-			
-			/**
-			 * 재산정
-			 */
-			CalResultVO calResultVO = calList(priceList, costExplorerList);	// 검산식 수행
-			
-			result.put("costExplorerList", costExplorerList);
-			result.put("priceList", priceList);
-			result.put("calResultVO", calResultVO);
-			
-			return result;
-		} else {
-			// error msg
-			return result;
-		}
-		// CostExplorer 리스트 추출 ver2.DB 접근 >> 예정		
+		LOGGER.debug("costExplorer");
+		AwsCostExplorerVO costExplorer = costExplorerService.callCostExplorerList(filterVO);
+		LOGGER.debug("priceList ");
+		AwsPriceListVO priceList = priceListService.callPriceListList(filterVO);
+		LOGGER.debug("priceList Realignment ");
+		CalResultVO calResultVO = calList(costExplorer,priceList);
+		
+		result.put("costExplorer", costExplorer );
+		result.put("priceList"	 , priceList	);
+		result.put("calResultVO" , calResultVO	);
+		
+		return result;
 	}
 	
 	/**
@@ -213,7 +197,7 @@ public class RinspServiceImpl implements RinspService{
 	 * @param costExplorerList
 	 * @return
 	 */
-	private CalResultVO calList(AwsPriceListVO pvo, List<AwsCostExplorerVO> costExplorerList) {
+	private CalResultVO calList(AwsCostExplorerVO evo, AwsPriceListVO pvo) {
 		
 		List<String> servicecodes 			= new ArrayList<String>();	//사용유형 리스트
 		List<String> usageTypes 			= new ArrayList<String>();	//사용유형 리스트
@@ -256,119 +240,116 @@ public class RinspServiceImpl implements RinspService{
 		BigDecimal 	 usageTypePriceTotal  = new BigDecimal("0");	//사용유형 검산 금액
 	 	BigDecimal 	 reduceAmount		  = new BigDecimal("0");	//프리티어 절감량
 	 	
-	 	List<ResultByTime> resultByTimes = (List<ResultByTime>) costExplorerList.get(0).getResultByTimeList();
 		//계산방식:유형별로 구간별 사용량*구간단위가격 의 총합을 소수점둘째자리까지 반올림하여 청구서 금액과 비교
 	 	//위와 같은 계산식이 맞는지 판별 후 적용해야함
-//	 	for(AwsCostExplorerVO costExplorer  : costExplorerList) {		//월별
-	 		for(ResultByTime resultByTime : resultByTimes) {		//월별	 		
-	 			List<String> tempUsagePriceList = new ArrayList<String>(); 	//유형요금별 비교값 담을 리스트 생성(월별로 사용유형 묶음)
-	 			Map<String,BigDecimal> getFreeTierList = getFreeTierList(pvo);
-	 			timePeriod 	= resultByTime.getTimePeriod();
+	 	for(ResultByTime resultByTime : evo.getResultByTimes()) {		//월별	 		
+	 		List<String> tempUsagePriceList = new ArrayList<String>(); 	//유형요금별 비교값 담을 리스트 생성(월별로 사용유형 묶음)
+	 		Map<String,BigDecimal> getFreeTierList = getFreeTierList(pvo);
+	 		timePeriod 	= resultByTime.getTimePeriod();
+	 		
+	 		calTotalPrice	= new BigDecimal("0");				//검산할 총합값 초기화
+	 		originTotalPrice= new BigDecimal("0");				//Explorer 총합값 초기화
+	 		intervalAmount	= new BigDecimal("0");				//구간사용량
+	 		for(Group group : resultByTime.getGroups()) {		//월별 사용유형값
+	 			String usageTypeName = group.getKeys().get(0);	//검산할 사용유형 이름
 	 			
-	 			calTotalPrice	= new BigDecimal("0");				//검산할 총합값 초기화
-	 			originTotalPrice= new BigDecimal("0");				//Explorer 총합값 초기화
-	 			intervalAmount	= new BigDecimal("0");				//구간사용량
-	 			for(Group group : resultByTime.getGroups()) {		//월별 사용유형값
-	 				String usageTypeName = group.getKeys().get(0);	//검산할 사용유형 이름
-	 				
-	 				usageTypePriceTotal  = new BigDecimal("0");		//검산할 사용유형 가격 초기화	 			
-	 				originUsageTypePrice = new BigDecimal(group.getMetrics().get("UnblendedCost").getAmount()); //Exploerer 사용유형별 요금
-	 				originUsageTypePrice = originUsageTypePrice.setScale(2, RoundingMode.HALF_UP); 				// 소수점반올림
-	 				
-	 				//Exploerer 총요금
-	 				originTotalPrice = originTotalPrice.add(originUsageTypePrice).setScale(2, RoundingMode.HALF_UP);//Explore 유형요금 가져오기	 		
-	 				
-	 				int pListIdxCnt = 0; //priceList 인덱스 카운트
-	 				for(String usagetype : pvo.getUsagetypes()) {
-	 					//priceList 사용유형과 비교
-	 					if(usagetype.equals(group.getKeys().get(0)) ) {
-	 						servicecode  = pvo.getServicecodes().get(pListIdxCnt);
-	 						startDate	 = timePeriod.getStart();
-	 						endDate 	 = timePeriod.getEnd();
-	 						currencyCode = pvo.getCurrencyCodes().get(pListIdxCnt);
-	 						unit 		 = pvo.getUnits().get(pListIdxCnt);
-	 						description  = pvo.getDescriptions().get(pListIdxCnt);
-	 						location	 = pvo.getLocations().get(pListIdxCnt);
+	 			usageTypePriceTotal  = new BigDecimal("0");		//검산할 사용유형 가격 초기화	 			
+	 			originUsageTypePrice = new BigDecimal(group.getMetrics().get("UnblendedCost").getAmount()); //Exploerer 사용유형별 요금
+	 			originUsageTypePrice = originUsageTypePrice.setScale(2, RoundingMode.HALF_UP); 				// 소수점반올림
+	 			
+	 			//Exploerer 총요금
+	 			originTotalPrice = originTotalPrice.add(originUsageTypePrice).setScale(2, RoundingMode.HALF_UP);//Explore 유형요금 가져오기	 		
+	 			
+		 		int pListIdxCnt = 0; //priceList 인덱스 카운트
+	 			for(String usagetype : pvo.getUsagetypes()) {
+	 				//priceList 사용유형과 비교
+	 				if(usagetype.equals(group.getKeys().get(0)) ) {
+	 					servicecode  = pvo.getServicecodes().get(pListIdxCnt);
+	 					startDate	 = timePeriod.getStart();
+	 			 		endDate 	 = timePeriod.getEnd();
+	 					currencyCode = pvo.getCurrencyCodes().get(pListIdxCnt);
+	 					unit 		 = pvo.getUnits().get(pListIdxCnt);
+	 					description  = pvo.getDescriptions().get(pListIdxCnt);
+	 					location	 = pvo.getLocations().get(pListIdxCnt);
+	 					
+	 					pricePerUnit = new BigDecimal(pvo.getCurrencyRates().get(pListIdxCnt));				//priceList Unit당 가격 담기	 					
+	 					beginRange   = new BigDecimal(pvo.getBeginRanges().get(pListIdxCnt));				//priceList 최소범위	 					
+	 					usageQuantity= new BigDecimal(group.getMetrics().get("UsageQuantity").getAmount()); //사용자 사용량
+	 					endRange 	 = null;
+	 					//각 사용량 구간별 단위가격으로 나누어 합산한 가격을 usageTypePrice에 담는다.
+	 					//사용최소범위 <= 사용자 사용량
+	 					if(0 <= usageQuantity.compareTo(beginRange)){
 	 						
-	 						pricePerUnit = new BigDecimal(pvo.getCurrencyRates().get(pListIdxCnt));				//priceList Unit당 가격 담기	 					
-	 						beginRange   = new BigDecimal(pvo.getBeginRanges().get(pListIdxCnt));				//priceList 최소범위	 					
-	 						usageQuantity= new BigDecimal(group.getMetrics().get("UsageQuantity").getAmount()); //사용자 사용량
-	 						endRange 	 = null;
-	 						//각 사용량 구간별 단위가격으로 나누어 합산한 가격을 usageTypePrice에 담는다.
-	 						//사용최소범위 <= 사용자 사용량
-	 						if(0 <= usageQuantity.compareTo(beginRange)){
-	 							
-	 							
-	 							if(!pvo.getEndRanges().get(pListIdxCnt).equals("Inf")) { // 최대값 범위가 INF가 아닐때, 즉 최대값이 정해져 있을때
-	 								endRange   	= new BigDecimal(pvo.getEndRanges().get(pListIdxCnt));//priceList 최대범위
+	 						
+	 						if(!pvo.getEndRanges().get(pListIdxCnt).equals("Inf")) { // 최대값 범위가 INF가 아닐때, 즉 최대값이 정해져 있을때
+	 							endRange   	= new BigDecimal(pvo.getEndRanges().get(pListIdxCnt));//priceList 최대범위
 	 								//사용최소범위 <= 사용자 사용량 < 사용최대범위
-	 								if(-1 == usageQuantity.compareTo(endRange)) {
-	 									intervalAmount = usageQuantity.subtract(beginRange);//사용량 = 사용자 사용량 - 사용최소범위		 								
-	 								}else {	//사용최대범위 <= 사용자 사용량
-	 									intervalAmount = endRange.subtract(beginRange);		//사용량 = 사용최대범위 - 사용최소범위		 								
-	 								}
-	 								reduceAmount = FreeTierCalInfo.FreeTierApply(pvo,usagetype,beginRange,endRange,intervalAmount,getFreeTierList); //프리티어 적용
-	 							}else { //최대값 범위가 INF일때
+		 							if(-1 == usageQuantity.compareTo(endRange)) {
+		 								intervalAmount = usageQuantity.subtract(beginRange);//사용량 = 사용자 사용량 - 사용최소범위		 								
+		 							}else {	//사용최대범위 <= 사용자 사용량
+		 								intervalAmount = endRange.subtract(beginRange);		//사용량 = 사용최대범위 - 사용최소범위		 								
+		 							}
+		 							reduceAmount = FreeTierCalInfo.FreeTierApply(pvo,usagetype,beginRange,endRange,intervalAmount,getFreeTierList); //프리티어 적용
+				 			}else { //최대값 범위가 INF일때
 	 								intervalAmount  = usageQuantity.subtract(beginRange);
 	 								reduceAmount 	= FreeTierCalInfo.FreeTierApply(pvo,usagetype,beginRange, intervalAmount,getFreeTierList); //프리티어 적용
-	 							}
-	 						}else { //사용최소범위 > 사용자 사용량
-	 							intervalAmount	= BigDecimal.ZERO;
-	 							usageQuantity 	= BigDecimal.ZERO;
-	 							reduceAmount 	= BigDecimal.ZERO;
-	 							if(!pvo.getEndRanges().get(pListIdxCnt).equals("Inf"))
-	 								endRange 		= new BigDecimal(pvo.getEndRanges().get(pListIdxCnt));
 	 						}
-	 						//구간량 < 프리티어절감량 => 0으로 치환
-	 						if(reduceAmount.compareTo(intervalAmount) >= 0) {
-	 							intervalAmount = BigDecimal.ZERO;
-	 						}else {
-	 							intervalAmount = intervalAmount.subtract(reduceAmount); // 구간사용량 = 구간사용량 - 프리티어절감량
-	 						}	
-	 						usageTypePrice 		= intervalAmount.multiply(pricePerUnit);	//사용유형 구간별 가격
-	 						usageTypePriceTotal = usageTypePriceTotal.add(usageTypePrice);
-	 						usageTypePriceTotal = usageTypePriceTotal.setScale(2, RoundingMode.HALF_UP);//사용유형 가격 += 단위당가격*사용량 
-	 						isConfirm = false;
-	 						if(originUsageTypePrice.equals(usageTypePriceTotal)) isConfirm = true;
-	 						
-	 						//리스트에 등록
-	 						servicecodes			.add(servicecode);
-	 						usageTypes				.add(usagetype);										
-	 						usageQuantitys			.add(usageQuantity.toString());
-	 						startDates				.add(startDate);
-	 						endDates				.add(endDate);
-	 						intervalAmounts			.add(intervalAmount.toString()); 
-	 						pricePerUnits			.add(pricePerUnit.toString());
-	 						usageTypePrices			.add(usageTypePrice.toString());
-	 						usageTypePriceTotals	.add(usageTypePriceTotal.toString());
-	 						originUsageTypePrices	.add(originUsageTypePrice.toString());	
-	 						isConfirms				.add(isConfirm+"");
-	 						currencyCodes			.add(currencyCode);
-	 						units					.add(unit);
-	 						descriptions			.add(description);
-	 						locations				.add(location);
-	 						beginRanges				.add(beginRange.toString());
-	 						if(endRange == null) 	endRanges.add("Inf");	//구간 최대범위가 Inf일시 String Inf값 입력
-	 						else 					endRanges.add(endRange.toString());
+	 					}else { //사용최소범위 > 사용자 사용량
+	 						intervalAmount	= BigDecimal.ZERO;
+	 						usageQuantity 	= BigDecimal.ZERO;
+	 						reduceAmount 	= BigDecimal.ZERO;
+	 						if(!pvo.getEndRanges().get(pListIdxCnt).equals("Inf"))
+	 							endRange 		= new BigDecimal(pvo.getEndRanges().get(pListIdxCnt));
 	 					}
-	 					pListIdxCnt++;
-	 				}	 			
-	 				calTotalPrice = calTotalPrice.add(usageTypePriceTotal);// 검사총합에 사용유형별 값 추가	 			
-	 				//사용유형별 검산 확인
-	 				isConfirm = false;
-	 				if(originUsageTypePrice.equals(usageTypePriceTotal)) isConfirm = true;		 		
-	 				
-	 				tempUsagePriceList.add("\t"+usageTypeName+"\t "+usageTypePriceTotal.toString()+"\t"+originUsageTypePrice.toString()+" \t" +isConfirm);
-	 			}
-	 			
-	 			//월별 사용유형 검산값 담기
-	 			monUsageTypePriceList.add(tempUsagePriceList);
-	 			//월별 총합 검산 확인
+	 					//구간량 < 프리티어절감량 => 0으로 치환
+ 						if(reduceAmount.compareTo(intervalAmount) >= 0) {
+ 							intervalAmount = BigDecimal.ZERO;
+ 						}else {
+ 							intervalAmount = intervalAmount.subtract(reduceAmount); // 구간사용량 = 구간사용량 - 프리티어절감량
+ 						}	
+ 						usageTypePrice 		= intervalAmount.multiply(pricePerUnit);	//사용유형 구간별 가격
+ 						usageTypePriceTotal = usageTypePriceTotal.add(usageTypePrice);
+ 						usageTypePriceTotal = usageTypePriceTotal.setScale(2, RoundingMode.HALF_UP);//사용유형 가격 += 단위당가격*사용량 
+ 						isConfirm = false;
+ 						if(originUsageTypePrice.equals(usageTypePriceTotal)) isConfirm = true;
+ 						
+	 					//리스트에 등록
+ 						servicecodes			.add(servicecode);
+ 						usageTypes				.add(usagetype);										
+ 						usageQuantitys			.add(usageQuantity.toString());
+ 						startDates				.add(startDate);
+ 						endDates				.add(endDate);
+ 						intervalAmounts			.add(intervalAmount.toString()); 
+ 						pricePerUnits			.add(pricePerUnit.toString());
+ 						usageTypePrices			.add(usageTypePrice.toString());
+ 						usageTypePriceTotals	.add(usageTypePriceTotal.toString());
+ 						originUsageTypePrices	.add(originUsageTypePrice.toString());	
+ 						isConfirms				.add(isConfirm+"");
+ 						currencyCodes			.add(currencyCode);
+ 						units					.add(unit);
+ 						descriptions			.add(description);
+ 						locations				.add(location);
+ 						beginRanges				.add(beginRange.toString());
+ 						if(endRange == null) 	endRanges.add("Inf");	//구간 최대범위가 Inf일시 String Inf값 입력
+ 						else 					endRanges.add(endRange.toString());
+	 				}
+	 				pListIdxCnt++;
+	 			}	 			
+	 			calTotalPrice = calTotalPrice.add(usageTypePriceTotal);// 검사총합에 사용유형별 값 추가	 			
+	 			//사용유형별 검산 확인
 	 			isConfirm = false;
-	 			if(originTotalPrice.equals(calTotalPrice)) isConfirm = true;	
-	 			monTotalPriceList.add(resultByTime.getTimePeriod() +"    "+calTotalPrice.toString()+"   \t"+originTotalPrice.toString()+" \t" +isConfirm);
+		 		if(originUsageTypePrice.equals(usageTypePriceTotal)) isConfirm = true;		 		
+		 		
+		 		tempUsagePriceList.add("\t"+usageTypeName+"\t "+usageTypePriceTotal.toString()+"\t"+originUsageTypePrice.toString()+" \t" +isConfirm);
 	 		}
-//	 	}
+	 		
+	 		//월별 사용유형 검산값 담기
+	 		monUsageTypePriceList.add(tempUsagePriceList);
+	 		//월별 총합 검산 확인
+	 		isConfirm = false;
+	 		if(originTotalPrice.equals(calTotalPrice)) isConfirm = true;	
+	 		monTotalPriceList.add(resultByTime.getTimePeriod() +"    "+calTotalPrice.toString()+"   \t"+originTotalPrice.toString()+" \t" +isConfirm);
+	 	}
 	 	
 	 	CalResultVO result = new CalResultVO();
 	 	
