@@ -76,26 +76,34 @@ function searchRecalc() {
 		<tr>
 			<th style="min-width:200px">서비스</th>
 			<th style="min-width:350px">유형타입</th>
+			<th style="min-width:200px">시작일</th>
+			<th style="min-width:200px">종료일</th>
+			<th style="min-width:200px">사용량</th>
 			<th style="min-width:200px">구간사용량</th>
 			<th style="min-width:200px">단위가격</th>
+			<th style="min-width:200px">검산누적가격</th>
 			<th style="min-width:200px">청구서가격</th>
+			<th style="min-width:200px">검산결과</th>
 			<th style="min-width:100px">최소범위</th>
 			<th style="min-width:100px">최대범위</th>
-			<th style="min-width:100px">통화</th>
 			<th style="min-width:100px">유형단위</th>
 			<th style="min-width:200px">리전정보</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr th:each="CustomVO : ${resultList}">
-			<th th:text="${CustomVO.serviceCode}"></th>
+			<th th:text="${CustomVO.servicecode}"></th>
 			<th th:text="${CustomVO.usagetype}"></th>
+			<th th:text="${CustomVO.startDate}"></th>
+			<th th:text="${CustomVO.endDate}"></th>
+			<th th:text="${CustomVO.usageQuantity}"></th>
 			<th th:text="${CustomVO.intervalAmount}"></th>
 			<th th:text="${CustomVO.pricePerUnit}"></th>
-			<th th:text="${CustomVO.unblendedCost}"></th>
+			<th th:text="${CustomVO.usageTypePrice}"></th>
+			<th th:text="${CustomVO.isConfirm}"></th>
+			<th th:text="${CustomVO.OriginUsageTypePrice}"></th>
 			<th th:text="${CustomVO.beginRange}"></th>
 			<th th:text="${CustomVO.endRange}"></th>
-			<th th:text="${CustomVO.currencyCodes}"></th>
 			<th th:text="${CustomVO.unit}"></th>
 			<th th:text="${CustomVO.location}"></th>
 		</tr>

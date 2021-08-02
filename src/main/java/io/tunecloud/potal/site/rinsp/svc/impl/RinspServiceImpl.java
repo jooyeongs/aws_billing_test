@@ -80,87 +80,7 @@ public class RinspServiceImpl implements RinspService{
 	public FilterVO selectProjectKey(FilterVO filterVO) throws Exception {
 		return rinspDAO.selectProjectKey(filterVO);
 	}
-//	@Override
-//	public Map<String, Object> rinspList(FilterVO filterVO) {
-//		Map<String, Object> result = new HashMap<String, Object>();
-//		/**
-//		 * <call utils>
-//		 *	US_EAST_1("us-east-1", "US East (N. Virginia)")
-//		 *	(Regions regions, String accessKey, String secretKey, String aes256Key)
-//		 */
-//		Regions 		endPoint 	= Regions.fromName(regionName);
-//		AWSPricing      PriceList   = AwsUtils.authAwsPricing(endPoint, filterVO.getAccessKey(), filterVO.getSecretKey(), aes256Key);
-//		AWSCostExplorer CostExplorer = AwsUtils.authAwsCe(endPoint, filterVO.getAccessKey(), filterVO.getSecretKey(), aes256Key);
-//		
-//		/**
-//		 * costExplorer
-//		 */
-//		String version = "ver1";
-//		// Ver1. costExplorer
-//		if ("ver1".equals(version)) {
-//			/**
-//			 * Cost Explorer 검색
-//			 */
-//			AwsCostExplorerVO costExplorerListVO = costExplorerService.explorerPasingJson(filterVO);
-//			// Ver1 end
-//		// Ver2. PROJECT_CSP_COST Table
-//		} else {
-//			/**
-//			 * PROJECT_CSP_COST 검색
-//			 */
-//			
-//			// Ver2 end
-//		}
-//		/**
-//		 * PriceList 전체List memory에 담기
-//		 */
-//
-//		
-//		/**
-//		 * UsageType정보로 memory에 있는 PriceList FreeTier 조회
-//		 */
-//		
-//		/**
-//		 * UsageType정보로 memory에 있는 PriceList 특정
-//		 */
-//		
-//		/**
-//		 * 재산정
-//		 */
-//		
-//		return result;
-//	}
-	/**
-	 * 조회된 PriceList를 DB에 등록한다.
-	 */
-	@Override
-	public Map<String, Object> savePriceList(FilterVO filterVO) throws Exception {
-		Map<String, Object> result = new HashMap<String, Object>();
-		
-		/**
-		 * CostExplorer 리스트 추출
-		 */
-		LOGGER.debug("costExplorerList 리스트 추출 ");
-		List<AwsCostExplorerVO> costExplorerList = null; 
-				// costExplorerService.callCostExplorerList(filterVO);
-		
-		// costExplorerList가 1건 이상시
-		if (costExplorerList != null) {
-			/** 
-			 * PriceList 리스트 추출
-			 */
-			/**
-			 * DB에 적재
-			 */
-			/**
-			 * 결과값 map에 put
-			 */
-			return result;
-		} else {
-			// error msg
-			return result;
-		}
-	}
+
 	/**
 	 * PriceList와 CostExplorer값을 비교하여 재산정값을 도출한다.
 	 */
@@ -187,7 +107,11 @@ public class RinspServiceImpl implements RinspService{
 		 */
 		LOGGER.debug("INSERT TO DB");
 		if (!Objects.isNull(calResultVOList) && calResultVOList.size() > 0) {
-			rinspDAO.insertCspCostRInsp(calResultVOList);
+			try {
+				rinspDAO.insertCspCostRInsp(calResultVOList);
+			} catch (Exception e) {
+				
+			}
 		} else {
 			LOGGER.debug("Fail to INSERT");
 		}

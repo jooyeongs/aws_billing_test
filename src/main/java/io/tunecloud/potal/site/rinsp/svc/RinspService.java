@@ -45,21 +45,6 @@ public interface RinspService {
 	FilterVO selectProjectKey(FilterVO filterVO) throws Exception;
 
 	/**
-	 * @Method Name  : savePriceList
-	 * @Method Desc  :
-	 * @작성일   : 2021. 7. 19 
-	 * @작성자   : JuYoung2
-	 * @변경이력  :
-	 *           이름              :      일자                :         근거자료       :          변경내용
-	 *           -------------------------------------------------------------------
-	 *          JuYoung2    :   2021. 7. 19    :                   :    신규 개발.
-	 * 
-	 * @param recalcFilterVO
-	 * @return
-	 */
-	Map<String, Object> savePriceList(FilterVO recalcFilterVO) throws Exception;
-
-	/**
 	 * @Method Name  : priceListRealignment
 	 * @Method Desc  :
 	 * @작성일   : 2021. 7. 19 

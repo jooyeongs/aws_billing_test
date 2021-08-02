@@ -44,13 +44,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			, #{item.intervalAmount}
 			, #{item.pricePerUnit}
 			, #{item.usageTypePrice}
-			, #{item.isConfirms}
-			, #{item.OriginUsageTypePrice}
+			, #{item.originUsageTypePrice}
+			, #{item.isConfirm}
 			, #{item.beginRange}
 			, #{item.endRange}			
 			, #{item.unit}
 			, #{item.location}			
 			, #{item.description}   )
 		</foreach>
+		   ON DUPLICATE KEY UPDATE USAGE_QUANTITY_TOTAL		= values(USAGE_QUANTITY_TOTAL	)
+		   						 , USAGE_QUANTITY_SECTION   = values(USAGE_QUANTITY_SECTION	)
+		   						 , PRICE_PER_UNIT			= values(PRICE_PER_UNIT			)
+		   						 , RINSP_AMOUNT				= values(RINSP_AMOUNT			)
+		   						 , UNBLENDED_COST			= values(UNBLENDED_COST			)
+		   						 , IS_RINSP					= values(IS_RINSP				)
+		   						 , UNIT						= values(UNIT					)
+		   						 , LOCATION 				= values(LOCATION				)
+		   						 , DESCRIPTION				= values(DESCRIPTION			)
 	</insert>
 </mapper>
