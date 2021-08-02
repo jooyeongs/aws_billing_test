@@ -52,25 +52,13 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
     private String regionName;
 	
 	@Override
-	public AwsPriceListVO callPriceListList(FilterVO filterVO) throws Exception {
+	public List<AwsPriceListVO> callPriceListList(FilterVO filterVO) throws Exception {
 		LOGGER.debug("callCostExplorerServiceList");
-		AwsPriceListVO awsPriceList = new AwsPriceListVO();
-		/**
-		 * priceList API 값을 담을 리스트 생성	
-		 */
-		//Common Product
-		List<String> servicecodes 	= new ArrayList<String>();	//서비스코드
-		List<String> servicenames 	= new ArrayList<String>();	//서비스네임
-		List<String> usagetypes		= new ArrayList<String>();	//사용유형 
-		//Common Terms
-		List<String> units			= new ArrayList<String>();	 
-		List<String> beginRanges	= new ArrayList<String>();	//사용유형 최소범위
-		List<String> endRanges		= new ArrayList<String>();	//사용유형 최대범위
-		List<String> currencyCodes	= new ArrayList<String>();	//화폐
-		List<String> currencyRates	= new ArrayList<String>();	//단위가격		
-		List<String> descriptions	= new ArrayList<String>();	//단위 설명
-		
-		List<String> locations		= new ArrayList<String>();	//리전정보
+		AwsPriceListVO 		 priceVo   = new AwsPriceListVO(); 
+		List<AwsPriceListVO> priceList = new ArrayList<AwsPriceListVO>(); 
+		GetProductsRequest getProductsRequest = new GetProductsRequest();				//요청할 priceList
+		GetProductsResult  getProductsResult  = new GetProductsResult();				//받은 priceList
+		boolean isNextTokenCheck = false;	//토큰 체크
 		
 		/**
 		 * <call utils>
@@ -80,10 +68,7 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
 		Regions 		endPoint = Regions.fromName(regionName);
 		AWSPricing      pricing  = AwsUtils.authAwsPricing(endPoint, filterVO.getAccessKey(), filterVO.getSecretKey(), aes256Key);
 			
-		GetProductsRequest getProductsRequest = new GetProductsRequest();				//요청할 priceList
-		GetProductsResult  getProductsResult  = new GetProductsResult();				//받은 priceList
 		
-		boolean isNextTokenCheck = false;	//토큰 체크
 		do{		
 			//nextToken validation check
 			
@@ -120,48 +105,37 @@ public class AwsPriceListServiceImpl implements AwsPriceListService {
 	                		 for(Object priceDimensionskey : priceDimensions.keySet()) {
 	                			 JSONObject priceDimensionsValue = (JSONObject) priceDimensions.get(priceDimensionskey);
 	                			 JSONObject pricePerUnitMap = (JSONObject) priceDimensionsValue.get("pricePerUnit");	
-	                			 servicecodes	.add((String) attributes.get("servicecode"));
-	                			 servicenames	.add((String) attributes.get("servicename"));
-	                			 usagetypes		.add((String) attributes.get("usagetype"));	
+	                			 
+	                			 priceVo = new AwsPriceListVO(); 
+	                			 priceVo.setServicecode((String) attributes.get("servicecode"));
+	                			 priceVo.setServicename((String) attributes.get("servicename"));	
+	                			 priceVo.setUsagetype  ((String) attributes.get("usagetype"));	
 	                			 if(null != attributes.get("location")){
-	                				 locations  .add((String) attributes.get("location"));
+	                				 priceVo.setLocation((String) attributes.get("location")); 
 	                			 } else if(null == attributes.get("location") && null != attributes.get("fromLocation")){
-	                				 locations  .add((String) attributes.get("fromLocation"));
+	                				 priceVo.setLocation((String) attributes.get("fromLocation")); 
 	                			 }	else {
-	                				 locations  .add("global");
+	                				 priceVo.setLocation("global");
 	                			 }
 	                			 
-	                			 units			.add((String) priceDimensionsValue.get("unit"));
-	                			 beginRanges	.add((String) priceDimensionsValue.get("beginRange"));	
-	                			 endRanges		.add((String) priceDimensionsValue.get("endRange"));	  
-	                			 currencyCodes	.add((String) pricePerUnitMap.keySet().toString());	                			
-	                			 currencyRates	.add((String) pricePerUnitMap.values().toArray()[0]);	                			
-	                			 descriptions	.add((String) priceDimensionsValue.get("description"));
+	                			 priceVo.setUnit		((String) priceDimensionsValue.get("unit"));
+	                			 priceVo.setBeginRange	((String) priceDimensionsValue.get("beginRange"));	
+	                			 priceVo.setEndRange	((String) priceDimensionsValue.get("endRange"));	  
+	                			 priceVo.setCurrencyCode((String) pricePerUnitMap.keySet().toString());	                			
+	                			 priceVo.setCurrencyRate((String) pricePerUnitMap.values().toArray()[0]);	                			
+	                			 priceVo.setDescription	((String) priceDimensionsValue.get("description"));
 	                			 
+	                			 priceList.add(priceVo);
 	                		 }
 	                	 }
 	                 }
-	                 
-	                 //VO에 저장
-	                 //Common Product
-	                 awsPriceList.setServicecodes	(servicecodes);
-	                 awsPriceList.setServicenames	(servicenames);
-	                 awsPriceList.setUsagetypes		(usagetypes);	
-	                 //Common Terms
-	                 awsPriceList.setUnits			(units);       
-	                 awsPriceList.setBeginRanges	(beginRanges);
-	                 awsPriceList.setEndRanges		(endRanges);	
-	                 awsPriceList.setCurrencyCodes	(currencyCodes);
-	                 awsPriceList.setCurrencyRates	(currencyRates);	                 
-	                 awsPriceList.setDescriptions	(descriptions);	
-	                 awsPriceList.setLocations		(locations);
                  }catch (Exception e) {
 	                 LOGGER.error("Parsing Exception {}", e.getMessage(), e);
 	             }
 	        }
 		}while(null != getProductsResult.getNextToken()); //NextToken 없을시 종료
 		
-		return awsPriceList;
+		return priceList;
 	}
 
 	/**

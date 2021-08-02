@@ -3,8 +3,12 @@
  */
 package io.tunecloud.potal.site.rinsp.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
+import io.tunecloud.potal.site.rinsp.vo.CalResultVO;
+import io.tunecloud.potal.site.rinsp.vo.CustomVO;
 import io.tunecloud.potal.site.rinsp.vo.FilterVO;
 
 /**
@@ -28,5 +32,7 @@ import io.tunecloud.potal.site.rinsp.vo.FilterVO;
 public interface RinspDAO {
 
 	FilterVO selectProjectKey(FilterVO filterVO) throws Exception;
+	
+	void insertCspCostRInsp(List<CalResultVO> calResultVOList) throws Exception;
 
 }

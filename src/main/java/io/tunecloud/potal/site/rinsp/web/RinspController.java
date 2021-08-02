@@ -104,42 +104,10 @@ public class RinspController {
 		filterVO.setAccessKey(projectKey.getAccessKey());
 		filterVO.setSecretKey(projectKey.getSecretKey());
 		/**
-		 * result Map
-		 */
-		Map<String, Object> result = new HashMap<String, Object>();
-		/**
 		 * process - rinspList
 		 */
 		if (filterVO.getCspId() == 1) {
-			// AWS에 대하여 재산정 플로우 진행 
-			result = rinspService.priceListRealignment(filterVO);
-			
-			List<CustomVO> resultList = new ArrayList<CustomVO>();
-			CalResultVO calResultVO = (CalResultVO) result.get("calResultVO");
-			
-			if (!Objects.isNull(calResultVO)) { 
-				for (int i=0; i<calResultVO.getBeginRanges().size();i++) {
-					CustomVO custom = new CustomVO();
-					custom.setServiceCode(calResultVO.getServicecodes().get(i));
-					custom.setUsagetype(calResultVO.getUsagetypes().get(i));
-					custom.setIntervalAmount(calResultVO.getIntervalAmount().get(i));
-					custom.setPricePerUnit(calResultVO.getPricePerUnits().get(i));
-					custom.setUnblendedCost(calResultVO.getOriginUsageTypePrices().get(i));
-					custom.setBeginRange(calResultVO.getBeginRanges().get(i));
-					custom.setEndRange(calResultVO.getEndRanges().get(i));
-					custom.setCurrencyCodes(calResultVO.getCurrencyCodes().get(i));
-					custom.setUnit(calResultVO.getUnits().get(i));
-					custom.setLocation(calResultVO.getLocations().get(i));
-					
-					resultList.add(custom);
-				}
-			}
-			
-			model.addAttribute("resultList"	, resultList);
-			
-//			model.addAttribute("costExplorerList"	, 		result.get("costExplorerList")	);
-//			model.addAttribute("priceList"			, 		result.get("priceList")			);
-			
+			model.addAttribute("resultList"	, rinspService.priceListRealignment(filterVO));
 		}
 		return "tunecloud/rinsp/rinspList";
 	}

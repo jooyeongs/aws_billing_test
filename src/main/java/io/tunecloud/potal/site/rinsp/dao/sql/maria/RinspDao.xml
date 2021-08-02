@@ -17,5 +17,40 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		   AND PC.CSP_ID    = #{cspId}
 	</select>
 	
-	
+	<insert id="insertCspCostRInsp" parameterType="java.util.List">
+		INSERT INTO PROJECT_CSP_COST_RINSP
+			( SERVICE_CODE
+			, USAGETYPE
+			, START_DATE
+			, END_DATE
+			, USAGE_QUANTITY_TOTAL
+			, USAGE_QUANTITY_SECTION
+			, PRICE_PER_UNIT
+			, RINSP_AMOUNT
+			, UNBLENDED_COST
+			, IS_RINSP
+			, BEGIN_RANGE
+			, END_RANGE
+			, UNIT
+			, LOCATION
+			, DESCRIPTION    )
+		VALUES
+		<foreach collection="list" item="item" separator="," >
+			( #{item.servicecode}
+			, #{item.usagetype}
+			, #{item.startDate}
+			, #{item.endDate}
+			, #{item.usageQuantity}
+			, #{item.intervalAmount}
+			, #{item.pricePerUnit}
+			, #{item.usageTypePrice}
+			, #{item.isConfirms}
+			, #{item.OriginUsageTypePrice}
+			, #{item.beginRange}
+			, #{item.endRange}			
+			, #{item.unit}
+			, #{item.location}			
+			, #{item.description}   )
+		</foreach>
+	</insert>
 </mapper>

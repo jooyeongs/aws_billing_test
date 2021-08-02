@@ -3,9 +3,7 @@
  */
 package io.tunecloud.potal.site.awsapi.priceList.vo;
 
-import java.util.List;
-
-import lombok.Getter;
+import lombok.Data;
 
 /**
  * <pre>
@@ -24,51 +22,21 @@ import lombok.Getter;
  *         JuYoung2  : 2021. 6. 24       :                : 신규 개발.
  * 
  */
-@Getter
+@Data
 public class AwsPriceListVO {
 	//Common Product
-	private List<String> servicecodes;
-	private List<String> usagetypes;
-	private List<String> servicenames;
+	private String servicecode;
+	private String usagetype;
+	private String servicename;
 
 	//Common Terms
-	private List<String> units;
-	private List<String> beginRanges;
-	private List<String> endRanges;
-	private List<String> currencyCodes;
-	private List<String> currencyRates;
-	private List<String> descriptions;
+	private String unit;
+	private String beginRange;
+	private String endRange;
+	private String currencyCode;
+	private String currencyRate;
+	private String description;
 	
-	private List<String> locations;
+	private String location;
 	
-	public void setServicecodes(List<String> servicecodes) {
-		this.servicecodes = servicecodes;
-	}	
-	public void setUsagetypes(List<String> usagetypes) {
-		this.usagetypes = usagetypes;
-	}	
-	public void setServicenames(List<String> servicenames) {
-		this.servicenames = servicenames;
-	}
-	public void setUnits(List<String> units) {
-		this.units = units;
-	}
-	public void setBeginRanges(List<String> beginRanges) {
-		this.beginRanges = beginRanges;
-	}
-	public void setEndRanges(List<String> endRanges) {
-		this.endRanges = endRanges;
-	}
-	public void setCurrencyCodes(List<String> currencyCodes) {
-		this.currencyCodes = currencyCodes;
-	}
-	public void setCurrencyRates(List<String> currencyRates) {
-		this.currencyRates = currencyRates;
-	}
-	public void setDescriptions(List<String> descriptions) {
-		this.descriptions = descriptions;
-	}
-	public void setLocations(List<String> locations) {
-		this.locations = locations;
-	}
 }

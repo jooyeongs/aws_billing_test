@@ -5,7 +5,6 @@ package io.tunecloud.potal.site.awsapi.priceList.svc;
 
 import java.util.List;
 
-import io.tunecloud.potal.site.awsapi.costexplorer.vo.AwsCostExplorerVO;
 import io.tunecloud.potal.site.awsapi.priceList.vo.AwsPriceListVO;
 import io.tunecloud.potal.site.rinsp.vo.FilterVO;
 
@@ -42,6 +41,6 @@ public interface AwsPriceListService {
 	 * @return
 	 * @throws Exception
 	 */
-	AwsPriceListVO callPriceListList(FilterVO filterVO) throws Exception;
+	List<AwsPriceListVO> callPriceListList(FilterVO filterVO) throws Exception;
 
 }

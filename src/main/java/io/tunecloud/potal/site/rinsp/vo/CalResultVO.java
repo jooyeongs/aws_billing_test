@@ -1,30 +1,49 @@
 package io.tunecloud.potal.site.rinsp.vo;
 
-import java.util.List;
-
 import lombok.Data;
 
 @Data
-public class CalResultVO extends AwsComDefaultVO{
+public class CalResultVO{
 	
-	private List<String> usagetypes;
+	private String usagetype;
 	
-	private List<String> usageQuantitys;
+	private String usageQuantity;
 	
-	private List<String> startDates;
+	private String startDate;
 	
-	private List<String> endDates;
+	private String endDate;
 	
-	private List<String> intervalAmount;
+	private String intervalAmount;
 	
-	private List<String> pricePerUnits;
+	private String pricePerUnit;
 	
-	private List<String> usageTypePrices;
+	private String usageTypePrice;
 	
-	private List<String> originUsageTypePrices;
+	private String originUsageTypePrice;
 	
-	private List<String> isConfirms;
+	private String isConfirm;
 	
-	private List<String> usageTypePriceTotals;
+	private String usageTypePriceTotal;
+	//Common Product
+	private String servicecode;
+	private String servicename;
 
+	//Common Terms
+	private String unit;
+	private String beginRange;
+	private String endRange;
+	private String currencyCode;
+	private String currencyRate;
+	private String description;
+	
+	private String location;
+	
+	private String usageQuantityTotal;
+	private String usageQuantitySection;
+	private String inspAmount;
+	private String unblendedCost;
+	private String isInsp;
+	
+	private String currencyCodes;
+	
 }

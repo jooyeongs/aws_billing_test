@@ -3,8 +3,11 @@
  */
 package io.tunecloud.potal.site.rinsp.svc;
 
+import java.util.List;
 import java.util.Map;
 
+import io.tunecloud.potal.site.rinsp.vo.CalResultVO;
+import io.tunecloud.potal.site.rinsp.vo.CustomVO;
 import io.tunecloud.potal.site.rinsp.vo.FilterVO;
 
 /**
@@ -69,6 +72,6 @@ public interface RinspService {
 	 * @param recalcFilterVO
 	 * @return
 	 */
-	Map<String, Object> priceListRealignment(FilterVO recalcFilterVO) throws Exception;
+	List<CalResultVO> priceListRealignment(FilterVO recalcFilterVO) throws Exception;
 
 }
